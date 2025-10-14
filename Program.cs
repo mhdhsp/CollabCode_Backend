@@ -1,4 +1,7 @@
 
+using CollabCode.Data;
+using Microsoft.EntityFrameworkCore;
+
 namespace CollabCode
 {
     public class Program
@@ -13,6 +16,9 @@ namespace CollabCode
             // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
             builder.Services.AddEndpointsApiExplorer();
             builder.Services.AddSwaggerGen();
+
+            builder.Services.AddDbContext<AppDbContext>(options =>
+            options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
             var app = builder.Build();
 
