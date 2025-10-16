@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using System.Text.Json.Serialization;
 
 namespace CollabCode.Common.Model
 {
@@ -17,6 +18,9 @@ namespace CollabCode.Common.Model
         public string? PassWord { get; set; }
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
         public DateTime LastLogin { get; set; }
+
+        [JsonIgnore]
+        public ICollection<RoomModel>? Rooms { get; set; }
 
     }
 }

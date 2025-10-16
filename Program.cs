@@ -12,6 +12,7 @@ using Microsoft.IdentityModel.Tokens;
 using System.Text;
 using CollabCode.Common.DTO;
 using CollabCode.Common.Exceptions;
+using CollabCode.MiddleWare;
 
 namespace CollabCode
 {
@@ -26,19 +27,68 @@ namespace CollabCode
             builder.Services.AddControllers();
             // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
             builder.Services.AddEndpointsApiExplorer();
-            builder.Services.AddSwaggerGen();
 
+
+           
+
+
+            
+         
             builder.Services.AddAutoMapper(typeof(MappingProfile));
+
+            builder.Services.AddDbContext<AppDbContext>(options =>
+            options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
+
+
+            builder.Services.AddScoped<IAuthService, AuthService>();
+            builder.Services.AddScoped<IRoomService, RoomService>();
+
+
+
             // logger for pgm.cs before build
             var logger = LoggerFactory.Create(config =>
             {
                 config.AddConsole();
             }).CreateLogger("startup");
 
-            builder.Services.AddDbContext<AppDbContext>(options =>
-            options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
+            //configuring swagger authorization
+            builder.Services.AddSwaggerGen(c =>
+            {
+                c.SwaggerDoc("v1", new() { Title = "CollabCode API", Version = "v1" });
 
-            builder.Services.AddScoped<IAuthService, AuthService>();
+
+                var jwtSecurityScheme = new Microsoft.OpenApi.Models.OpenApiSecurityScheme
+                {
+                    Scheme = "bearer",
+                    BearerFormat = "JWT",
+                    Name = "Authorization",
+                    In = Microsoft.OpenApi.Models.ParameterLocation.Header,
+                    Type = Microsoft.OpenApi.Models.SecuritySchemeType.Http,
+                    Description = "Enter 'Bearer' followed by your JWT token.",
+                    Reference = new Microsoft.OpenApi.Models.OpenApiReference
+                    {
+                        Id = "Bearer",
+                        Type = Microsoft.OpenApi.Models.ReferenceType.SecurityScheme
+                    }
+                };
+
+                c.AddSecurityDefinition("Bearer", jwtSecurityScheme);
+
+                c.AddSecurityRequirement(new Microsoft.OpenApi.Models.OpenApiSecurityRequirement
+                {
+                      {
+                          new Microsoft.OpenApi.Models.OpenApiSecurityScheme
+                          {
+                              Reference = new Microsoft.OpenApi.Models.OpenApiReference
+                                {
+                                  Type = Microsoft.OpenApi.Models.ReferenceType.SecurityScheme,
+                                    Id = "Bearer"
+                                 }
+                           },
+                       Array.Empty<string>()
+                         }
+                 });
+            });
             //Jwt Configuration
 
             var jwtSettings = builder.Configuration.GetSection("Jwt");
@@ -82,6 +132,13 @@ namespace CollabCode
             builder.Logging.ClearProviders();
             builder.Logging.AddConsole();
             builder.Logging.AddDebug();
+
+
+
+
+
+
+
 
             var app = builder.Build();
 
@@ -128,6 +185,8 @@ namespace CollabCode
 
             app.UseHttpsRedirection();
 
+            app.UseAuthentication();
+            app.UseMiddleware<UserContextMiddleWare>();
             app.UseAuthorization();
 
 
