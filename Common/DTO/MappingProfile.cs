@@ -1,8 +1,8 @@
 ﻿using AutoMapper;
-using CollabCode.DTO.ResDto;
-using CollabCode.Model;
+using CollabCode.Common.DTO.ResDto;
+using CollabCode.Common.Model;
 
-namespace CollabCode.DTO
+namespace CollabCode.Common.DTO
 {
     public class MappingProfile : Profile
     {

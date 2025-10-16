@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace CollabCode.DTO.ReqDto
+namespace CollabCode.Common.DTO.ReqDto
 {
     public class LoginReqDto
     {

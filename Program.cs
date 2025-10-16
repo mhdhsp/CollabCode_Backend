@@ -1,7 +1,5 @@
 
 using CollabCode.Data;
-using CollabCode.DTO;
-using CollabCode.Exceptions;
 using CollabCode.Models;
 using CollabCode.Services;
 using Microsoft.AspNetCore.Diagnostics;
@@ -12,6 +10,8 @@ using System;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
+using CollabCode.Common.DTO;
+using CollabCode.Common.Exceptions;
 
 namespace CollabCode
 {

@@ -1,4 +1,4 @@
-﻿using CollabCode.Model;
+﻿using CollabCode.Common.Model;
 using Microsoft.EntityFrameworkCore;
 
 namespace CollabCode.Data

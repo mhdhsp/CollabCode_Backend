@@ -1,9 +1,9 @@
 ﻿using AutoMapper;
+using CollabCode.Common.DTO.ReqDto;
+using CollabCode.Common.DTO.ResDto;
+using CollabCode.Common.Model;
 using CollabCode.Data;
-using CollabCode.DTO.ReqDto;
-using CollabCode.DTO.ResDto;
-using CollabCode.Exceptions;
-using CollabCode.Model;
+using CollabCode.Common.Exceptions;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Identity.Client;
 using Microsoft.IdentityModel.Tokens;
@@ -38,6 +38,7 @@ namespace CollabCode.Services
             var claims = new[]
             {
                 new Claim(ClaimTypes.Name, user.UserName),
+                new Claim(ClaimTypes.NameIdentifier,user.Id.ToString()),
                 new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString())
             };
 

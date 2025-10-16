@@ -1,4 +1,4 @@
-﻿namespace CollabCode.Exceptions
+﻿namespace CollabCode.Common.Exceptions
 {
     public class UserNotFoundException:Exception
     {

@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace CollabCode.Model
+namespace CollabCode.Common.Model
 {
     public class UserModel
     {

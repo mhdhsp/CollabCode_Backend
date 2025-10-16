@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace CollabCode.DTO.ResDto
+namespace CollabCode.Common.DTO.ResDto
 {
     public class UserResDto
     {
