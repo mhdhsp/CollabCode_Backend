@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace CollabCode.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20251014102918_initial")]
-    partial class initial
+    [Migration("20251016092108_Password length increased")]
+    partial class Passwordlengthincreased
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -40,13 +40,18 @@ namespace CollabCode.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<DateTime>("LastLogin")
+                        .HasColumnType("datetime2");
+
                     b.Property<string>("PassWord")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)");
 
                     b.Property<string>("UserName")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasMaxLength(20)
+                        .HasColumnType("nvarchar(20)");
 
                     b.HasKey("Id");
 

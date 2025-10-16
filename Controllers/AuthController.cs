@@ -28,8 +28,6 @@ namespace CollabCode.Controllers
         [HttpPost("Resgister")]
         public async Task<ActionResult> Register(UserModel newUser)
         {
-            
-            
                 var res = await _service.Register(newUser);
                 _logger.LogInformation($"{newUser.UserName} registerd succefully");
                 return Ok(new ApiResponse<UserResDto> { Message = "User added ", Data = res });
