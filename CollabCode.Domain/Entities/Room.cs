@@ -1,7 +1,7 @@
 ﻿using Microsoft.AspNetCore.Http.HttpResults;
 using System.Text.Json.Serialization;
 
-namespace CollabCode.CollabCode.Domain.Model
+namespace CollabCode.CollabCode.Domain.Entities
 {
     public class Room
     {
@@ -19,8 +19,13 @@ namespace CollabCode.CollabCode.Domain.Model
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
         public bool IsActive { get; set; } = true;
 
+        
+
         [JsonIgnore]
-        public UserModel? Owner { get; set; }
+        public User? Owner { get; set; }
+
+        [JsonIgnore]
+        public List<RoomMember> Members { get; set; } = new List<RoomMember>();
         
     }
 }

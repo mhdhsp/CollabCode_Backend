@@ -1,8 +1,9 @@
 ﻿using CollabCode.CollabCode.Application.DTO.ReqDto;
 using CollabCode.CollabCode.Application.DTO.ResDto;
+using CollabCode.CollabCode.Application.Interfaces.Services;
 using CollabCode.CollabCode.Application.Services;
-using CollabCode.Common.Model;
-using CollabCode.Models;
+using CollabCode.CollabCode.Domain.Entities;
+using CollabCode.CollabCode.WebApi.Common;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -34,7 +35,19 @@ namespace CollabCode.CollabCode.WebApi.Controllers
         [HttpPost("JoinRoom")]
         public async Task<ActionResult> JoinRoom(RoomJoinReqDto ReqDto)
         {
+            var user = HttpContext.Items["UserId"]?.ToString();
+            if (user == null)
+                return Unauthorized("User not found in request context");
+            int userId = userId = Convert.ToInt32(user);
 
+            var res = await _service.JoinRoom(ReqDto,userId);
+            return Ok(new ApiResponse<RoomResDto> { Message = "joined success fully", Data = res });
+        }
+
+        [HttpGet("EnterRoom/{Id}")]
+        public async Task<ActionResult> EnterRoom(int Id)
+        {
+           await  _service.EnterRoom(Id);
         }
 
     }

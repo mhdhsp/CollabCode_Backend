@@ -1,17 +1,18 @@
-using CollabCode.Models;
 using Microsoft.AspNetCore.Diagnostics;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using System;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
-using CollabCode.CollabCode.Application.DTO;
 using CollabCode.CollabCode.Application.Exceptions;
 using CollabCode.CollabCode.Infrastructure.Persistense;
 using CollabCode.CollabCode.WebApi.MiddleWare;
 using CollabCode.CollabCode.Application.Services;
+using CollabCode.CollabCode.WebApi.Common;
+using CollabCode.CollabCode.Application.Mappings;
+using CollabCode.CollabCode.Application.Interfaces.Repositories;
+using CollabCode.CollabCode.Infrastructure.Respositories;
+using CollabCode.CollabCode.Application.Interfaces.Services;
 
 namespace CollabCode
 {
@@ -41,6 +42,7 @@ namespace CollabCode
 
             builder.Services.AddScoped<IAuthService, AuthService>();
             builder.Services.AddScoped<IRoomService, RoomService>();
+            builder.Services.AddScoped(typeof(IGenericRepository<>),typeof(GenericRepository<>));
 
 
 
@@ -186,7 +188,10 @@ namespace CollabCode
 
             app.UseAuthentication();
             app.UseMiddleware<UserContextMiddleWare>();
+            
             app.UseAuthorization();
+            app.UseMiddleware<AuthMiddleware>();
+
 
 
             app.MapControllers();

@@ -1,5 +1,5 @@
 ﻿using AutoMapper;
-using CollabCode.Common.Exceptions;
+using CollabCode.CollabCode.Application.Exceptions;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Identity.Client;
 using Microsoft.IdentityModel.Tokens;
@@ -9,28 +9,26 @@ using System.Security.Claims;
 using System.Text;
 using CollabCode.CollabCode.Application.DTO.ReqDto;
 using CollabCode.CollabCode.Application.DTO.ResDto;
-using CollabCode.CollabCode.Domain.Model;
+using CollabCode.CollabCode.Domain.Entities;
 using CollabCode.CollabCode.Infrastructure.Persistense;
+using CollabCode.CollabCode.Application.Interfaces.Repositories;
+using CollabCode.CollabCode.Application.Interfaces.Services;
 namespace CollabCode.CollabCode.Application.Services
 {
-    public interface IAuthService
-    {
-        Task<UserResDto?> Register(UserModel newUser);
-        Task<UserResDto> Login(LoginReqDto ReqDto);
-    }
+  
     public class AuthService:IAuthService
     {
-        private readonly AppDbContext _context;
+        private readonly IGenericRepository<User> _repo;
         private readonly IMapper _mapper;
         private readonly IConfiguration _config;
-        public AuthService(AppDbContext context, IMapper mapper,IConfiguration config) 
-        { 
-            _context = context;
+        public AuthService(IGenericRepository<User> Repo, IMapper mapper,IConfiguration config) 
+        {
+            _repo = Repo;
             _mapper = mapper;
             _config = config;
         }
 
-        private string GenerateJwtToken(UserModel user)
+        private string GenerateJwtToken(User user)
         {
             var jwtSettings = _config.GetSection("Jwt");
             var key = new SymmetricSecurityKey(Encoding.ASCII.GetBytes(jwtSettings["Key"]));
@@ -54,30 +52,28 @@ namespace CollabCode.CollabCode.Application.Services
 
             return new JwtSecurityTokenHandler().WriteToken(token);
         }
-        public async Task<UserResDto?> Register(UserModel newUser)
+        public async Task<UserResDto?> Register(User newUser)
         {
-              if(_context.Users.Any(u=>u.UserName==newUser.UserName))
+            newUser.UserName=newUser.UserName.Trim().ToLower();
+            if (await _repo.AnyAsync(u=>u.UserName.ToLower()==newUser.UserName))
                 throw new UserAlreadyExistsException("user Alredy Exist ");
 
                 newUser.PassWord = BCrypt.Net.BCrypt.HashPassword(newUser.PassWord);
-                await _context.AddAsync(newUser);
-                await _context.SaveChangesAsync();
+                await _repo.AddAsync(newUser);
                 var res = _mapper.Map<UserResDto>(newUser);
-                return res;
-               
-                
+                return res; 
         }
 
 
         public async Task<UserResDto> Login(LoginReqDto ReqDto)
         {
-            var existing = await _context.Users.FirstOrDefaultAsync(u => u.UserName == ReqDto.UserName);
+            var existing = await _repo.FirstOrDefaultAsync(u=>u.UserName==ReqDto.UserName.ToLower());
             if (existing == null)
                 throw new NotFoundException( $"User with UserName= {ReqDto.UserName} not found");
             if (!BCrypt.Net.BCrypt.Verify(ReqDto.PassWord, existing.PassWord))
                 throw new MismatchException($"Invalid Password");
             existing.LastLogin = DateTime.UtcNow;
-            await _context.SaveChangesAsync();
+            await _repo.UpdateAsync(existing);
             var res = _mapper.Map<UserResDto>(existing);
             res.Token = GenerateJwtToken(existing);
             return res;

@@ -1,5 +1,6 @@
-﻿using CollabCode.CollabCode.Domain.Model;
+﻿using CollabCode.CollabCode.Domain.Entities;
 using Microsoft.EntityFrameworkCore;
+using System.Reflection;
 
 namespace CollabCode.CollabCode.Infrastructure.Persistense
 {
@@ -7,19 +8,13 @@ namespace CollabCode.CollabCode.Infrastructure.Persistense
     {
         public AppDbContext(DbContextOptions<AppDbContext> options) : base(options) { }
 
-       public  DbSet<UserModel> Users { get; set; }
-        public DbSet<RoomModel >Rooms { get; set; }
+       public  DbSet<User> Users { get; set; }
+        public DbSet<Room>Rooms { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
+            modelBuilder.ApplyConfigurationsFromAssembly(Assembly.GetExecutingAssembly());
             base.OnModelCreating(modelBuilder);
-            modelBuilder.Entity<UserModel>()
-                .HasKey(u => u.Id);
-            modelBuilder.Entity<RoomModel>()
-                .HasOne(u => u.Owner)
-                .WithMany(s => s.Rooms)
-                .HasForeignKey(p => p.OwnerId);
-
         }
     }
 }

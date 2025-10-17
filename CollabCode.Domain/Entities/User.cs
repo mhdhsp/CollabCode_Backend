@@ -1,7 +1,8 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.Text.Json.Serialization;
 
-namespace CollabCode.CollabCode.Domain.Model
+namespace CollabCode.CollabCode.Domain.Entities
 {
     public class User
     {
@@ -20,7 +21,9 @@ namespace CollabCode.CollabCode.Domain.Model
         public DateTime LastLogin { get; set; }
 
         [JsonIgnore]
-        public ICollection<RoomModel>? Rooms { get; set; }
+        public List<Room> Rooms { get; set; } = new List<Room>();
+        [JsonIgnore]
+        public List<RoomMember> MemberShips { get; set; } = new List<RoomMember>();
 
     }
 }

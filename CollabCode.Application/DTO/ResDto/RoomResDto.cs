@@ -1,5 +1,4 @@
-﻿using CollabCode.Common.Model;
-using System.Text.Json.Serialization;
+﻿using System.Text.Json.Serialization;
 
 namespace CollabCode.CollabCode.Application.DTO.ResDto
 {
@@ -14,6 +13,7 @@ namespace CollabCode.CollabCode.Application.DTO.ResDto
         public string Language { get; set; } = "JavaScript";
 
         public string? CurrentCode { get; set; } = "//Start coding now...";
+        
 
     }
 }

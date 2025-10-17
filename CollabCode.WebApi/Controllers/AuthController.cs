@@ -1,13 +1,13 @@
 ﻿using AutoMapper;
-using CollabCode.Common.Exceptions;
-using CollabCode.Models;
+using CollabCode.CollabCode.WebApi.Common;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using System.Net;
 using CollabCode.CollabCode.Application.DTO.ReqDto;
 using CollabCode.CollabCode.Application.DTO.ResDto;
-using CollabCode.CollabCode.Domain.Model;
+using CollabCode.CollabCode.Domain.Entities;
 using CollabCode.CollabCode.Application.Services;
+using CollabCode.CollabCode.Application.Interfaces.Services;
 
 namespace CollabCode.CollabCode.WebApi.Controllers
 {
@@ -26,7 +26,7 @@ namespace CollabCode.CollabCode.WebApi.Controllers
         }
 
         [HttpPost("Resgister")]
-        public async Task<ActionResult> Register(UserModel newUser)
+        public async Task<ActionResult> Register(User newUser)
         {
                 var res = await _service.Register(newUser);
                 _logger.LogInformation($"{newUser.UserName} registerd succefully");
