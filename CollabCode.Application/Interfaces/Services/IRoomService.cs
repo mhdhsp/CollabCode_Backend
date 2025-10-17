@@ -6,9 +6,9 @@ namespace CollabCode.CollabCode.Application.Interfaces.Services
 {
     public interface IRoomService
     {
-        Task<RoomResDto> CreateNewRoom(NewRoomReqDto reqDto, int userId);
-        Task<RoomResDto> JoinRoom(RoomJoinReqDto reqDto, int userId);
+        Task<NewRoomResDto> CreateNewRoom(NewRoomReqDto reqDto, int userId);
+        Task<NewRoomResDto> JoinRoom(RoomJoinReqDto reqDto, int userId);
 
-       Task <RoomResDto>
+        Task<RoomResDto> EnterRoom(int Roomid, int userId);
     }
 }

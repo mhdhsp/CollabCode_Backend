@@ -42,7 +42,9 @@ namespace CollabCode
 
             builder.Services.AddScoped<IAuthService, AuthService>();
             builder.Services.AddScoped<IRoomService, RoomService>();
+
             builder.Services.AddScoped(typeof(IGenericRepository<>),typeof(GenericRepository<>));
+            builder.Services.AddScoped<IRoomRepo, RoomRepo>();
 
 
 
@@ -160,6 +162,7 @@ namespace CollabCode
                         UserAlreadyExistsException => StatusCodes.Status409Conflict,
                         NotFoundException=>StatusCodes.Status404NotFound,
                         MismatchException=>StatusCodes.Status400BadRequest,
+                        UnauthorizedAccessException=>StatusCodes.Status401Unauthorized,
                         _ => StatusCodes.Status500InternalServerError
                     };
                     

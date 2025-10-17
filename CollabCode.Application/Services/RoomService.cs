@@ -15,32 +15,36 @@ namespace CollabCode.CollabCode.Application.Services
    
     public class RoomService:IRoomService
     {
-        private readonly IGenericRepository<Room> _roomRepo;
-        private readonly IGenericRepository<RoomMembers> _roomMemberRepo;
+        private readonly IGenericRepository<Room> _roomGRepo;
+        private readonly IGenericRepository<RoomMember> _roomMemberRepo;
+        private readonly IRoomRepo _roomRepo;
         private readonly IMapper _mapper;
 
-       public RoomService(IGenericRepository<Room> Repo, IGenericRepository<RoomMembers> roomMemberRepo,IMapper mapper)
+       public RoomService(IGenericRepository<Room> Repo, IGenericRepository<RoomMember> roomMemberRepo,
+           IMapper mapper, IRoomRepo roomRepo)
         {
+
             _roomMemberRepo = roomMemberRepo;
-            _roomRepo = Repo;
+            _roomGRepo = Repo;
+            _roomRepo = roomRepo;
             _mapper = mapper;
         }
 
-        public async Task<RoomResDto> CreateNewRoom(NewRoomReqDto reqDto,int userId)
+        public async Task<NewRoomResDto> CreateNewRoom(NewRoomReqDto reqDto,int userId)
         {
             var room = _mapper.Map<Room>(reqDto);
             room.OwnerId = userId;
             room.JoinCode = await GenerateJoinCode();
             if (!room.IsPublic && !string.IsNullOrEmpty(reqDto.PassWordHash))
                 room.PassWordHash = BCrypt.Net.BCrypt.HashPassword(reqDto.PassWordHash);
-            await _roomRepo.AddAsync(room);
-            var ResDto = _mapper.Map<RoomResDto>(room);
+            await _roomGRepo.AddAsync(room);
+            var ResDto = _mapper.Map<NewRoomResDto>(room);
             return ResDto;
         }
 
-        public async Task<RoomResDto> JoinRoom(RoomJoinReqDto reqDto,int userId)
+        public async Task<NewRoomResDto> JoinRoom(RoomJoinReqDto reqDto,int userId)
         {
-            var existing = await _roomRepo.FirstOrDefaultAsync(u=>u.JoinCode==reqDto.JoinCode);
+            var existing = await _roomGRepo.FirstOrDefaultAsync(u=>u.JoinCode==reqDto.JoinCode);
             if (existing == null)
                 throw new NotFoundException("Room not found");
             if(!existing.IsPublic)
@@ -48,17 +52,28 @@ namespace CollabCode.CollabCode.Application.Services
                 if (!BCrypt.Net.BCrypt.Verify(reqDto.PassWord,existing.PassWordHash))
                     throw new  MismatchException("Invalid room password");
             }
-            var roomMember = new RoomMembers
+            var roomMember = new RoomMember
             {
                 UserId = userId,
                 RoomId = existing.Id,
                 IsOwner =  existing.OwnerId == userId
             };
             await _roomMemberRepo.AddAsync(roomMember);
-            var res = _mapper.Map<RoomResDto>(existing);
+            var res = _mapper.Map<NewRoomResDto>(existing);
             return res;
         }
 
+
+        public async Task<RoomResDto> EnterRoom(int Roomid,int userId)
+        {
+            var room = await _roomRepo.GetByIdAsync(Roomid);
+            if (! room.IsActive || room==null)
+                throw new NotFoundException("Room is not active anymore");
+            if (!room.Members.Any(u=>u.UserId==userId))
+                throw new UnauthorizedAccessException("You are not a member of this room");
+            var res = _mapper.Map<RoomResDto>(room);
+            return res;
+        }
         private async Task<string> GenerateJoinCode()
         {
             string code;
@@ -66,7 +81,7 @@ namespace CollabCode.CollabCode.Application.Services
             {
                 code = RandomNumberGenerator.GetInt32(0, 100000).ToString("D6");
             }
-            while (await _roomRepo.AnyAsync(u=>u.JoinCode==code));
+            while (await _roomGRepo.AnyAsync(u=>u.JoinCode==code));
             return code;
         }
     }

@@ -13,12 +13,13 @@ namespace CollabCode.CollabCode.Infrastructure.Persistense.Configurations
             builder.HasOne(u => u.User)
                 .WithMany(u => u.MemberShips)
                 .HasForeignKey(u => u.UserId)
-                .OnDelete(DeleteBehavior.Cascade);
+                .OnDelete(DeleteBehavior.NoAction);
 
             builder.HasOne(u => u.Room)
                 .WithMany(u => u.Members)
                 .HasForeignKey(u => u.RoomId)
-                .OnDelete(DeleteBehavior.Cascade);
+                .OnDelete(DeleteBehavior.NoAction);
+
         }
     }
 }

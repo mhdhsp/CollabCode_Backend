@@ -22,7 +22,7 @@ namespace CollabCode.Migrations
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
 
-            modelBuilder.Entity("CollabCode.Common.Model.RoomModel", b =>
+            modelBuilder.Entity("CollabCode.CollabCode.Domain.Entities.Room", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -65,7 +65,33 @@ namespace CollabCode.Migrations
                     b.ToTable("Rooms");
                 });
 
-            modelBuilder.Entity("CollabCode.Common.Model.UserModel", b =>
+            modelBuilder.Entity("CollabCode.CollabCode.Domain.Entities.RoomMember", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<bool>("IsOwner")
+                        .HasColumnType("bit");
+
+                    b.Property<int>("RoomId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("UserId")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("RoomId");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("RoomMember");
+                });
+
+            modelBuilder.Entity("CollabCode.CollabCode.Domain.Entities.User", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -98,19 +124,45 @@ namespace CollabCode.Migrations
                     b.ToTable("Users");
                 });
 
-            modelBuilder.Entity("CollabCode.Common.Model.RoomModel", b =>
+            modelBuilder.Entity("CollabCode.CollabCode.Domain.Entities.Room", b =>
                 {
-                    b.HasOne("CollabCode.Common.Model.UserModel", "Owner")
+                    b.HasOne("CollabCode.CollabCode.Domain.Entities.User", "Owner")
                         .WithMany("Rooms")
                         .HasForeignKey("OwnerId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.NoAction)
                         .IsRequired();
 
                     b.Navigation("Owner");
                 });
 
-            modelBuilder.Entity("CollabCode.Common.Model.UserModel", b =>
+            modelBuilder.Entity("CollabCode.CollabCode.Domain.Entities.RoomMember", b =>
                 {
+                    b.HasOne("CollabCode.CollabCode.Domain.Entities.Room", "Room")
+                        .WithMany("Members")
+                        .HasForeignKey("RoomId")
+                        .OnDelete(DeleteBehavior.NoAction)
+                        .IsRequired();
+
+                    b.HasOne("CollabCode.CollabCode.Domain.Entities.User", "User")
+                        .WithMany("MemberShips")
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.NoAction)
+                        .IsRequired();
+
+                    b.Navigation("Room");
+
+                    b.Navigation("User");
+                });
+
+            modelBuilder.Entity("CollabCode.CollabCode.Domain.Entities.Room", b =>
+                {
+                    b.Navigation("Members");
+                });
+
+            modelBuilder.Entity("CollabCode.CollabCode.Domain.Entities.User", b =>
+                {
+                    b.Navigation("MemberShips");
+
                     b.Navigation("Rooms");
                 });
 #pragma warning restore 612, 618

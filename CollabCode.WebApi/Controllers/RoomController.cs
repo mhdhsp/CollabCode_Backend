@@ -1,5 +1,6 @@
 ﻿using CollabCode.CollabCode.Application.DTO.ReqDto;
 using CollabCode.CollabCode.Application.DTO.ResDto;
+using CollabCode.CollabCode.Application.Exceptions;
 using CollabCode.CollabCode.Application.Interfaces.Services;
 using CollabCode.CollabCode.Application.Services;
 using CollabCode.CollabCode.Domain.Entities;
@@ -19,17 +20,18 @@ namespace CollabCode.CollabCode.WebApi.Controllers
         public RoomController(IRoomService service)
         {
             _service = service;
+           
         }
         [HttpPost("NewRoom")]
         public async Task<ActionResult> CreateNewRoom(NewRoomReqDto ReqDto)
         {
             var user = HttpContext.Items["UserId"]?.ToString();
             if (user == null)
-                return Unauthorized("User not found in request context");
-            int userId= userId = Convert.ToInt32(user);
+                throw new NotFoundException("User id not found,login required");
+            int userId = Convert.ToInt32(user);
 
             var res =await  _service.CreateNewRoom(ReqDto,userId);
-             return Ok(new ApiResponse<RoomResDto> { Message = "room created", Data = res });
+             return Ok(new ApiResponse<NewRoomResDto> { Message = "room created", Data = res });
         }
 
         [HttpPost("JoinRoom")]
@@ -37,17 +39,25 @@ namespace CollabCode.CollabCode.WebApi.Controllers
         {
             var user = HttpContext.Items["UserId"]?.ToString();
             if (user == null)
-                return Unauthorized("User not found in request context");
-            int userId = userId = Convert.ToInt32(user);
+                throw new NotFoundException("User id not found,login required");
+            int userId = Convert.ToInt32(user);
 
             var res = await _service.JoinRoom(ReqDto,userId);
-            return Ok(new ApiResponse<RoomResDto> { Message = "joined success fully", Data = res });
+            return Ok(new ApiResponse<NewRoomResDto> { Message = "joined success fully", Data = res });
         }
 
-        [HttpGet("EnterRoom/{Id}")]
-        public async Task<ActionResult> EnterRoom(int Id)
+        [HttpGet("EnterRoom/{RoomId}")]
+        public async Task<ActionResult> EnterRoom(int RoomId)
         {
-           await  _service.EnterRoom(Id);
+            var user = HttpContext.Items["UserId"]?.ToString();
+            if (user == null)
+                throw new NotFoundException("User id not found,login required");
+            int userId = Convert.ToInt32(user);
+
+            var res=await  _service.EnterRoom(RoomId,userId);
+            if (res == null)
+                return NotFound(new ApiResponse<string> {Message= "Room not found" });
+            return Ok(new ApiResponse<RoomResDto> { Message = "Room found ", Data = res });
         }
 
     }
