@@ -1,7 +1,4 @@
-
-using CollabCode.Data;
 using CollabCode.Models;
-using CollabCode.Services;
 using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -10,9 +7,11 @@ using System;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
-using CollabCode.Common.DTO;
-using CollabCode.Common.Exceptions;
-using CollabCode.MiddleWare;
+using CollabCode.CollabCode.Application.DTO;
+using CollabCode.CollabCode.Application.Exceptions;
+using CollabCode.CollabCode.Infrastructure.Persistense;
+using CollabCode.CollabCode.WebApi.MiddleWare;
+using CollabCode.CollabCode.Application.Services;
 
 namespace CollabCode
 {
@@ -157,7 +156,7 @@ namespace CollabCode
                     {
                         ArgumentException => StatusCodes.Status400BadRequest,
                         UserAlreadyExistsException => StatusCodes.Status409Conflict,
-                        UserNotFoundException=>StatusCodes.Status404NotFound,
+                        NotFoundException=>StatusCodes.Status404NotFound,
                         MismatchException=>StatusCodes.Status400BadRequest,
                         _ => StatusCodes.Status500InternalServerError
                     };
