@@ -47,6 +47,8 @@ namespace CollabCode.CollabCode.Application.Services
             var existing = await _roomGRepo.FirstOrDefaultAsync(u=>u.JoinCode==reqDto.JoinCode);
             if (existing == null)
                 throw new NotFoundException("Room not found");
+            if (await _roomMemberRepo.AnyAsync(u => u.UserId == userId && u.RoomId == existing.Id))
+                throw new AlreadyExistsException("You alraedy a member of this room");
             if(!existing.IsPublic)
             {
                 if (!BCrypt.Net.BCrypt.Verify(reqDto.PassWord,existing.PassWordHash))
@@ -67,10 +69,15 @@ namespace CollabCode.CollabCode.Application.Services
         public async Task<RoomResDto> EnterRoom(int Roomid,int userId)
         {
             var room = await _roomRepo.GetByIdAsync(Roomid);
-            if (! room.IsActive || room==null)
-                throw new NotFoundException("Room is not active anymore");
-            if (!room.Members.Any(u=>u.UserId==userId))
+
+            if (room ==null)
+                throw new NotFoundException("Room is not found");
+            else if(!room.IsActive)
+                throw new NotFoundException("Room is not active");
+
+            if (!room.Members.Any(u => u.UserId == userId))
                 throw new UnauthorizedAccessException("You are not a member of this room");
+
             var res = _mapper.Map<RoomResDto>(room);
             return res;
         }

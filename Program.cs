@@ -42,9 +42,11 @@ namespace CollabCode
 
             builder.Services.AddScoped<IAuthService, AuthService>();
             builder.Services.AddScoped<IRoomService, RoomService>();
+            builder.Services.AddScoped<IUserService, UserService>();
 
             builder.Services.AddScoped(typeof(IGenericRepository<>),typeof(GenericRepository<>));
             builder.Services.AddScoped<IRoomRepo, RoomRepo>();
+            builder.Services.AddScoped<IUserRepo, UserRepo>();
 
 
 
@@ -137,6 +139,20 @@ namespace CollabCode
             builder.Logging.AddDebug();
 
 
+            //Configuring CORS
+            var frontendUrl = builder.Configuration.GetValue<string>("Frontend:Url");
+
+            builder.Services.AddCors(options =>
+            {
+                options.AddPolicy("FrontendPolicy", policy =>
+                {
+                    policy
+                        .WithOrigins(frontendUrl) // allow only your frontend
+                        .AllowAnyHeader()
+                        .AllowAnyMethod();
+                });
+            });
+
 
 
 
@@ -144,6 +160,8 @@ namespace CollabCode
 
 
             var app = builder.Build();
+
+            app.UseCors("FrontendPolicy");
 
             //logger after build 
             var logg = app.Services.GetRequiredService<ILogger<Program>>();
@@ -159,7 +177,7 @@ namespace CollabCode
                     var statuscode = er switch
                     {
                         ArgumentException => StatusCodes.Status400BadRequest,
-                        UserAlreadyExistsException => StatusCodes.Status409Conflict,
+                        AlreadyExistsException => StatusCodes.Status409Conflict,
                         NotFoundException=>StatusCodes.Status404NotFound,
                         MismatchException=>StatusCodes.Status400BadRequest,
                         UnauthorizedAccessException=>StatusCodes.Status401Unauthorized,
@@ -195,7 +213,7 @@ namespace CollabCode
             app.UseAuthorization();
             app.UseMiddleware<AuthMiddleware>();
 
-
+            
 
             app.MapControllers();
 

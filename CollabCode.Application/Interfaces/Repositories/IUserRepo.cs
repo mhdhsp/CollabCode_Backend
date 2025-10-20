@@ -1,0 +1,10 @@
+﻿using CollabCode.CollabCode.Application.DTO.ResDto;
+using CollabCode.CollabCode.Domain.Entities;
+
+namespace CollabCode.CollabCode.Application.Interfaces.Repositories
+{
+    public interface IUserRepo
+    {
+        Task<UserRoomsDto?> GetAllUserRooms(int userId); 
+    }
+}

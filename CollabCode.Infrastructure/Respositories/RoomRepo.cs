@@ -19,9 +19,7 @@ namespace CollabCode.CollabCode.Infrastructure.Respositories
         public async Task<Room?> GetByIdAsync(int id)
         {
             return await _dbSet
-                 .Include(r => r.Members)
-                      .ThenInclude(m => m.User) 
-                  .Include(r => r.Owner)
+                .Include(r=>r.Members)
                   .FirstOrDefaultAsync(r => r.Id == id);
         }
     }

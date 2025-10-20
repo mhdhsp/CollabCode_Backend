@@ -10,6 +10,7 @@ namespace CollabCode.CollabCode.Infrastructure.Persistense.Configurations
         public void Configure(EntityTypeBuilder<User> builder)
         {
             builder.HasKey(u => u.Id);
+           
         }
     }
 }

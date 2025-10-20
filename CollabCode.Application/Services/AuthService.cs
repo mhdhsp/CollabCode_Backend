@@ -52,20 +52,20 @@ namespace CollabCode.CollabCode.Application.Services
 
             return new JwtSecurityTokenHandler().WriteToken(token);
         }
-        public async Task<UserResDto?> Register(User newUser)
+        public async Task<NewUserResDto?> Register(User newUser)
         {
             newUser.UserName=newUser.UserName.Trim().ToLower();
             if (await _repo.AnyAsync(u=>u.UserName.ToLower()==newUser.UserName))
-                throw new UserAlreadyExistsException("user Alredy Exist ");
+                throw new AlreadyExistsException("user Alredy Exist ");
 
                 newUser.PassWord = BCrypt.Net.BCrypt.HashPassword(newUser.PassWord);
                 await _repo.AddAsync(newUser);
-                var res = _mapper.Map<UserResDto>(newUser);
+                var res = _mapper.Map<NewUserResDto>(newUser);
                 return res; 
         }
 
 
-        public async Task<UserResDto> Login(LoginReqDto ReqDto)
+        public async Task<NewUserResDto> Login(LoginReqDto ReqDto)
         {
             var existing = await _repo.FirstOrDefaultAsync(u=>u.UserName==ReqDto.UserName.ToLower());
             if (existing == null)
@@ -74,7 +74,7 @@ namespace CollabCode.CollabCode.Application.Services
                 throw new MismatchException($"Invalid Password");
             existing.LastLogin = DateTime.UtcNow;
             await _repo.UpdateAsync(existing);
-            var res = _mapper.Map<UserResDto>(existing);
+            var res = _mapper.Map<NewUserResDto>(existing);
             res.Token = GenerateJwtToken(existing);
             return res;
         }

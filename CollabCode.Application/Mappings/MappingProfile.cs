@@ -9,10 +9,13 @@ namespace CollabCode.CollabCode.Application.Mappings
     {
         public MappingProfile()
         {
-            CreateMap<User, UserResDto>().ReverseMap();
+            CreateMap<User, NewUserResDto>().ReverseMap();
+
             CreateMap<Room, NewRoomReqDto>().ReverseMap();
+
             CreateMap<Room, NewRoomResDto>().ReverseMap();
             CreateMap<Room, RoomResDto>().ReverseMap();
+            
         }
     }
 }

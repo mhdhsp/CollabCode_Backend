@@ -25,12 +25,12 @@ namespace CollabCode.CollabCode.WebApi.Controllers
             
         }
 
-        [HttpPost("Resgister")]
+        [HttpPost("Register")]
         public async Task<ActionResult> Register(User newUser)
         {
                 var res = await _service.Register(newUser);
                 _logger.LogInformation($"{newUser.UserName} registerd succefully");
-                return Ok(new ApiResponse<UserResDto> { Message = "User added ", Data = res });
+                return Ok(new ApiResponse<NewUserResDto> { Message = "User added ", Data = res });
         }
 
         [HttpPost("Login")]
@@ -38,7 +38,7 @@ namespace CollabCode.CollabCode.WebApi.Controllers
         {
             var res = await _service.Login(ReqDto);
             _logger.LogInformation($"{ReqDto.UserName} Loginned succesfully");
-            return Ok(new ApiResponse<UserResDto> { Message = "Loginned succesfully", Data = res });
+            return Ok(new ApiResponse<NewUserResDto> { Message = "Loginned succesfully", Data = res });
         }
         
 

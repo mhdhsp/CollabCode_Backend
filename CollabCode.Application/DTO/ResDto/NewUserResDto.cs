@@ -2,7 +2,7 @@
 
 namespace CollabCode.CollabCode.Application.DTO.ResDto
 {
-    public class UserResDto
+    public class NewUserResDto
     {
         public string? UserName { get; set; }
         public string? Token { get; set; } = null;
