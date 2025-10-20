@@ -1,17 +1,18 @@
-
-using CollabCode.Data;
-using CollabCode.DTO;
-using CollabCode.Exceptions;
-using CollabCode.Models;
-using CollabCode.Services;
 using Microsoft.AspNetCore.Diagnostics;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using System;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
+using CollabCode.CollabCode.Application.Exceptions;
+using CollabCode.CollabCode.Infrastructure.Persistense;
+using CollabCode.CollabCode.WebApi.MiddleWare;
+using CollabCode.CollabCode.Application.Services;
+using CollabCode.CollabCode.WebApi.Common;
+using CollabCode.CollabCode.Application.Mappings;
+using CollabCode.CollabCode.Application.Interfaces.Repositories;
+using CollabCode.CollabCode.Infrastructure.Respositories;
+using CollabCode.CollabCode.Application.Interfaces.Services;
 
 namespace CollabCode
 {
@@ -26,19 +27,73 @@ namespace CollabCode
             builder.Services.AddControllers();
             // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
             builder.Services.AddEndpointsApiExplorer();
-            builder.Services.AddSwaggerGen();
 
+
+           
+
+
+            
+         
             builder.Services.AddAutoMapper(typeof(MappingProfile));
+
+            builder.Services.AddDbContext<AppDbContext>(options =>
+            options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
+
+
+            builder.Services.AddScoped<IAuthService, AuthService>();
+            builder.Services.AddScoped<IRoomService, RoomService>();
+            builder.Services.AddScoped<IUserService, UserService>();
+
+            builder.Services.AddScoped(typeof(IGenericRepository<>),typeof(GenericRepository<>));
+            builder.Services.AddScoped<IRoomRepo, RoomRepo>();
+            builder.Services.AddScoped<IUserRepo, UserRepo>();
+
+
+
             // logger for pgm.cs before build
             var logger = LoggerFactory.Create(config =>
             {
                 config.AddConsole();
             }).CreateLogger("startup");
 
-            builder.Services.AddDbContext<AppDbContext>(options =>
-            options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
+            //configuring swagger authorization
+            builder.Services.AddSwaggerGen(c =>
+            {
+                c.SwaggerDoc("v1", new() { Title = "CollabCode API", Version = "v1" });
 
-            builder.Services.AddScoped<IAuthService, AuthService>();
+
+                var jwtSecurityScheme = new Microsoft.OpenApi.Models.OpenApiSecurityScheme
+                {
+                    Scheme = "bearer",
+                    BearerFormat = "JWT",
+                    Name = "Authorization",
+                    In = Microsoft.OpenApi.Models.ParameterLocation.Header,
+                    Type = Microsoft.OpenApi.Models.SecuritySchemeType.Http,
+                    Description = "Enter 'Bearer' followed by your JWT token.",
+                    Reference = new Microsoft.OpenApi.Models.OpenApiReference
+                    {
+                        Id = "Bearer",
+                        Type = Microsoft.OpenApi.Models.ReferenceType.SecurityScheme
+                    }
+                };
+
+                c.AddSecurityDefinition("Bearer", jwtSecurityScheme);
+
+                c.AddSecurityRequirement(new Microsoft.OpenApi.Models.OpenApiSecurityRequirement
+                {
+                      {
+                          new Microsoft.OpenApi.Models.OpenApiSecurityScheme
+                          {
+                              Reference = new Microsoft.OpenApi.Models.OpenApiReference
+                                {
+                                  Type = Microsoft.OpenApi.Models.ReferenceType.SecurityScheme,
+                                    Id = "Bearer"
+                                 }
+                           },
+                       Array.Empty<string>()
+                         }
+                 });
+            });
             //Jwt Configuration
 
             var jwtSettings = builder.Configuration.GetSection("Jwt");
@@ -83,7 +138,30 @@ namespace CollabCode
             builder.Logging.AddConsole();
             builder.Logging.AddDebug();
 
+
+            //Configuring CORS
+            var frontendUrl = builder.Configuration.GetValue<string>("Frontend:Url");
+
+            builder.Services.AddCors(options =>
+            {
+                options.AddPolicy("FrontendPolicy", policy =>
+                {
+                    policy
+                        .WithOrigins(frontendUrl) // allow only your frontend
+                        .AllowAnyHeader()
+                        .AllowAnyMethod();
+                });
+            });
+
+
+
+
+
+
+
             var app = builder.Build();
+
+            app.UseCors("FrontendPolicy");
 
             //logger after build 
             var logg = app.Services.GetRequiredService<ILogger<Program>>();
@@ -99,9 +177,10 @@ namespace CollabCode
                     var statuscode = er switch
                     {
                         ArgumentException => StatusCodes.Status400BadRequest,
-                        UserAlreadyExistsException => StatusCodes.Status409Conflict,
-                        UserNotFoundException=>StatusCodes.Status404NotFound,
+                        AlreadyExistsException => StatusCodes.Status409Conflict,
+                        NotFoundException=>StatusCodes.Status404NotFound,
                         MismatchException=>StatusCodes.Status400BadRequest,
+                        UnauthorizedAccessException=>StatusCodes.Status401Unauthorized,
                         _ => StatusCodes.Status500InternalServerError
                     };
                     
@@ -128,8 +207,13 @@ namespace CollabCode
 
             app.UseHttpsRedirection();
 
+            app.UseAuthentication();
+            app.UseMiddleware<UserContextMiddleWare>();
+            
             app.UseAuthorization();
+            app.UseMiddleware<AuthMiddleware>();
 
+            
 
             app.MapControllers();
 
