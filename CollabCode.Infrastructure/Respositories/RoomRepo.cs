@@ -1,4 +1,5 @@
-﻿using CollabCode.CollabCode.Application.Interfaces.Repositories;
+﻿using CollabCode.CollabCode.Application.DTO.ResDto;
+using CollabCode.CollabCode.Application.Interfaces.Repositories;
 using CollabCode.CollabCode.Domain.Entities;
 using CollabCode.CollabCode.Infrastructure.Persistense;
 using Microsoft.EntityFrameworkCore;
@@ -16,11 +17,20 @@ namespace CollabCode.CollabCode.Infrastructure.Respositories
         }
 
 
-        public async Task<Room?> GetByIdAsync(int id)
+        public async Task<RoomResDto?> GetByIdAsync(int id)
         {
-            return await _dbSet
-                .Include(r=>r.Members)
-                  .FirstOrDefaultAsync(r => r.Id == id);
+            return await _dbSet.Where(u => u.Id == id)
+                .Select(u => new RoomResDto
+                {
+                    RoomName = u.RoomName,
+                    Members = u.Members
+                    .Select(s => new MemberDto
+                    {
+                        id = s.Id,
+                        UserName = s.User.UserName,
+                        isOwner = s.IsOwner
+                    }).ToList()
+                }).FirstOrDefaultAsync();
         }
     }
 }

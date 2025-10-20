@@ -75,8 +75,8 @@ namespace CollabCode.CollabCode.Application.Services
             else if(!room.IsActive)
                 throw new NotFoundException("Room is not active");
 
-            if (!room.Members.Any(u => u.UserId == userId))
-                throw new UnauthorizedAccessException("You are not a member of this room");
+            //if (!room.Members.Any(u => u.id == userId))
+            //    throw new UnauthorizedAccessException("You are not a member of this room");
 
             var res = _mapper.Map<RoomResDto>(room);
             return res;
