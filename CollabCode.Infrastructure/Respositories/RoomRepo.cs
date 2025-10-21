@@ -23,6 +23,7 @@ namespace CollabCode.CollabCode.Infrastructure.Respositories
                 .Select(u => new RoomResDto
                 {
                     RoomName = u.RoomName,
+                    OwnerId=u.OwnerId,
                     Members = u.Members
                     .Select(s => new MemberDto
                     {

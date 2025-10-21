@@ -88,7 +88,7 @@ namespace CollabCode.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("RoomMember");
+                    b.ToTable("MemberShips");
                 });
 
             modelBuilder.Entity("CollabCode.CollabCode.Domain.Entities.User", b =>
@@ -140,7 +140,7 @@ namespace CollabCode.Migrations
                     b.HasOne("CollabCode.CollabCode.Domain.Entities.Room", "Room")
                         .WithMany("Members")
                         .HasForeignKey("RoomId")
-                        .OnDelete(DeleteBehavior.NoAction)
+                        .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.HasOne("CollabCode.CollabCode.Domain.Entities.User", "User")
