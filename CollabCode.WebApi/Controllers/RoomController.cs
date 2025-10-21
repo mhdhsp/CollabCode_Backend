@@ -22,8 +22,8 @@ namespace CollabCode.CollabCode.WebApi.Controllers
             _service = service;
            
         }
-        [HttpPost("NewRoom")]
-        public async Task<ActionResult> CreateNewRoom(NewRoomReqDto ReqDto)
+        [HttpPost("Create")]
+        public async Task<ActionResult> Create(NewRoomReqDto ReqDto)
         {
             var user = HttpContext.Items["UserId"]?.ToString();
             if (user == null)
@@ -34,8 +34,8 @@ namespace CollabCode.CollabCode.WebApi.Controllers
              return Ok(new ApiResponse<NewRoomResDto> { Message = "room created", Data = res });
         }
 
-        [HttpPost("JoinRoom")]
-        public async Task<ActionResult> JoinRoom(RoomJoinReqDto ReqDto)
+        [HttpPost("Join")]
+        public async Task<ActionResult> Join(RoomJoinReqDto ReqDto)
         {
             var user = HttpContext.Items["UserId"]?.ToString();
             if (user == null)
@@ -46,8 +46,8 @@ namespace CollabCode.CollabCode.WebApi.Controllers
             return Ok(new ApiResponse<NewRoomResDto> { Message = "joined success fully", Data = res });
         }
 
-        [HttpGet("EnterRoom/{RoomId}")]
-        public async Task<ActionResult> EnterRoom(int RoomId)
+        [HttpGet("Enter{RoomId}")]
+        public async Task<ActionResult> Enter([FromRoute]int RoomId)
         {
             var user = HttpContext.Items["UserId"]?.ToString();
             if (user == null)
@@ -59,6 +59,38 @@ namespace CollabCode.CollabCode.WebApi.Controllers
                 return NotFound(new ApiResponse<string> {Message= "Room not found" });
             return Ok(new ApiResponse<RoomResDto> { Message = "Room found ", Data = res });
         }
+
+        [HttpGet("Leave/{roomId}")]
+        public async Task<ActionResult> Leave(int roomId)
+        {
+            var user = HttpContext.Items["UserId"]?.ToString();
+            if (user == null)
+                throw new NotFoundException("User id not found,login required");
+            int userId = Convert.ToInt32(user);
+
+            var res = await _service.LeaveRoom(userId, roomId);
+            if (res == true)
+                return Ok(new ApiResponse<bool> { Message = "Left the room succesfully" });
+            return BadRequest(new ApiResponse<bool> { Message = "Somthing went wrong" });
+        }
+
+        [HttpDelete("destroy/{roomId}")]
+        public async Task<ActionResult> Destroy(int roomId)
+        {
+            var user = HttpContext.Items["UserId"]?.ToString();
+            if (user == null)
+                throw new NotFoundException("User id not found, login required");
+
+            int userId = Convert.ToInt32(user);
+
+            var res = await _service.DestroyRoom(userId, roomId);
+
+            if (res)
+                return Ok(new ApiResponse<bool> { Message = "Room deleted successfully", Data = true });
+
+            return BadRequest(new ApiResponse<bool> { Message = "Something went wrong", Data = false });
+        }
+
 
     }
 }

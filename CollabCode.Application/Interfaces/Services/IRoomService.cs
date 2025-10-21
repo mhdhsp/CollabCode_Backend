@@ -10,5 +10,7 @@ namespace CollabCode.CollabCode.Application.Interfaces.Services
         Task<NewRoomResDto> JoinRoom(RoomJoinReqDto reqDto, int userId);
 
         Task<RoomResDto> EnterRoom(int Roomid, int userId);
+        Task<bool?> LeaveRoom(int userId, int roomId);
+        Task<bool> DestroyRoom(int userId, int roomId);
     }
 }

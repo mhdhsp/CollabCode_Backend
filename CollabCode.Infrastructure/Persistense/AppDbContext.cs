@@ -10,6 +10,7 @@ namespace CollabCode.CollabCode.Infrastructure.Persistense
 
        public  DbSet<User> Users { get; set; }
         public DbSet<Room>Rooms { get; set; }
+        public DbSet<RoomMember> MemberShips { get; set; } 
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {

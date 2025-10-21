@@ -14,8 +14,15 @@ namespace CollabCode.CollabCode.Application.DTO.ResDto
 
         public string? CurrentCode { get; set; } = "//Start coding now...";
         public bool IsActive { get; set; } = true;
-        public User? Owner { get; set; }
 
-        public List<RoomMember> Members { get; set; } = new List<RoomMember>();
+        public List<MemberDto> Members { get; set; } = new List<MemberDto>();
     }
+    public class MemberDto
+    {
+        public int id { get; set; }
+        public string? UserName { get; set; }
+        public bool isOwner { get; set; } = false;
+
+    }
+
 }

@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace CollabCode.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20251017165338_FixCascadePathsProperly")]
-    partial class FixCascadePathsProperly
+    [Migration("20251021104804_room member")]
+    partial class roommember
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -91,7 +91,7 @@ namespace CollabCode.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("RoomMember");
+                    b.ToTable("MemberShips");
                 });
 
             modelBuilder.Entity("CollabCode.CollabCode.Domain.Entities.User", b =>
@@ -143,7 +143,7 @@ namespace CollabCode.Migrations
                     b.HasOne("CollabCode.CollabCode.Domain.Entities.Room", "Room")
                         .WithMany("Members")
                         .HasForeignKey("RoomId")
-                        .OnDelete(DeleteBehavior.NoAction)
+                        .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.HasOne("CollabCode.CollabCode.Domain.Entities.User", "User")

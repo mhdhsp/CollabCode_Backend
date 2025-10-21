@@ -9,6 +9,7 @@ using Microsoft.IdentityModel.Tokens;
 using System.Security.Cryptography;
 using CollabCode.CollabCode.Application.Interfaces.Repositories;
 using CollabCode.CollabCode.Application.Interfaces.Services;
+using System.Runtime.InteropServices;
 
 namespace CollabCode.CollabCode.Application.Services
 {
@@ -16,18 +17,23 @@ namespace CollabCode.CollabCode.Application.Services
     public class RoomService:IRoomService
     {
         private readonly IGenericRepository<Room> _roomGRepo;
+        private readonly AppDbContext _context;
         private readonly IGenericRepository<RoomMember> _roomMemberRepo;
         private readonly IRoomRepo _roomRepo;
         private readonly IMapper _mapper;
+        private readonly ILogger<RoomService> _logger;
 
        public RoomService(IGenericRepository<Room> Repo, IGenericRepository<RoomMember> roomMemberRepo,
-           IMapper mapper, IRoomRepo roomRepo)
+           IMapper mapper, IRoomRepo roomRepo,ILogger<RoomService> logger,AppDbContext context)
         {
 
             _roomMemberRepo = roomMemberRepo;
             _roomGRepo = Repo;
             _roomRepo = roomRepo;
             _mapper = mapper;
+            _logger = logger;
+            _context = context;
+
         }
 
         public async Task<NewRoomResDto> CreateNewRoom(NewRoomReqDto reqDto,int userId)
@@ -68,6 +74,7 @@ namespace CollabCode.CollabCode.Application.Services
 
         public async Task<RoomResDto> EnterRoom(int Roomid,int userId)
         {
+            _logger.LogInformation($" from roomservice{Roomid}+{userId}");
             var room = await _roomRepo.GetByIdAsync(Roomid);
 
             if (room ==null)
@@ -75,12 +82,53 @@ namespace CollabCode.CollabCode.Application.Services
             else if(!room.IsActive)
                 throw new NotFoundException("Room is not active");
 
-            if (!room.Members.Any(u => u.UserId == userId))
-                throw new UnauthorizedAccessException("You are not a member of this room");
+            //if (!room.Members.Any(u => u.id == userId))
+            //    throw new UnauthorizedAccessException("You are not a member of this room");
 
             var res = _mapper.Map<RoomResDto>(room);
             return res;
         }
+
+        public async Task<bool?> LeaveRoom(int userId,int roomId)
+        {
+            
+            if (! await _roomGRepo.AnyAsync(u => u.Id == roomId))
+                throw new NotFoundException("No room found");
+            if (await _roomGRepo.AnyAsync(u => u.OwnerId== userId))
+                throw new NotFoundException("Owner canot leave the room");
+            var membership = await _roomMemberRepo.FirstOrDefaultAsync(u => u.UserId == userId && u.RoomId == roomId);
+            if (membership == null)
+                throw new NotFoundException("You are not member of the room");
+            await _roomMemberRepo.DeleteAsync(membership);
+            return true;
+        }
+        public async Task<bool> DestroyRoom(int userId, int roomId)
+        {
+            var room = await _roomGRepo.GetByIdAsync(roomId);
+            if (room == null)
+                throw new NotFoundException("Room not found");
+
+            
+            if (room.OwnerId != userId)
+                throw new UnauthorizedAccessException("Only the room owner can delete this room");
+
+            
+            using var transaction = await _context.Database.BeginTransactionAsync();
+            try
+            {
+                
+                await _roomGRepo.DeleteAsync(room);
+
+                await transaction.CommitAsync();
+                return true;
+            }
+            catch
+            {
+                await transaction.RollbackAsync();
+                throw;
+            }
+        }
+
         private async Task<string> GenerateJoinCode()
         {
             string code;

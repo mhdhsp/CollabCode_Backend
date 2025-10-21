@@ -15,7 +15,8 @@ namespace CollabCode.CollabCode.API.Controllers
             _service = service;
         }
 
-        [HttpGet("rooms")]
+
+        [HttpGet("UserRooms")]
         public async Task<IActionResult> GetUserRooms()
         {
             var user = HttpContext.Items["UserId"]?.ToString();

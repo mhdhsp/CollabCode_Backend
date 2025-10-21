@@ -18,7 +18,7 @@ namespace CollabCode.CollabCode.Infrastructure.Persistense.Configurations
             builder.HasOne(u => u.Room)
                 .WithMany(u => u.Members)
                 .HasForeignKey(u => u.RoomId)
-                .OnDelete(DeleteBehavior.NoAction);
+                .OnDelete(DeleteBehavior.Cascade);
 
         }
     }

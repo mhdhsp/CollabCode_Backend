@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace CollabCode.Migrations
 {
     /// <inheritdoc />
-    public partial class FixCascadePathsProperly : Migration
+    public partial class roommember : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -55,7 +55,7 @@ namespace CollabCode.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "RoomMember",
+                name: "MemberShips",
                 columns: table => new
                 {
                     Id = table.Column<int>(type: "int", nullable: false)
@@ -66,27 +66,28 @@ namespace CollabCode.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_RoomMember", x => x.Id);
+                    table.PrimaryKey("PK_MemberShips", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_RoomMember_Rooms_RoomId",
+                        name: "FK_MemberShips_Rooms_RoomId",
                         column: x => x.RoomId,
                         principalTable: "Rooms",
-                        principalColumn: "Id");
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
-                        name: "FK_RoomMember_Users_UserId",
+                        name: "FK_MemberShips_Users_UserId",
                         column: x => x.UserId,
                         principalTable: "Users",
                         principalColumn: "Id");
                 });
 
             migrationBuilder.CreateIndex(
-                name: "IX_RoomMember_RoomId",
-                table: "RoomMember",
+                name: "IX_MemberShips_RoomId",
+                table: "MemberShips",
                 column: "RoomId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_RoomMember_UserId",
-                table: "RoomMember",
+                name: "IX_MemberShips_UserId",
+                table: "MemberShips",
                 column: "UserId");
 
             migrationBuilder.CreateIndex(
@@ -99,7 +100,7 @@ namespace CollabCode.Migrations
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropTable(
-                name: "RoomMember");
+                name: "MemberShips");
 
             migrationBuilder.DropTable(
                 name: "Rooms");
