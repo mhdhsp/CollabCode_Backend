@@ -26,5 +26,6 @@ namespace CollabCode.CollabCode.Application.Services
                 throw new NotFoundException("No rooms available");
             return res;
         }
+
     }
 }

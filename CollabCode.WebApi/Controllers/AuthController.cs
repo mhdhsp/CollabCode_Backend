@@ -26,7 +26,7 @@ namespace CollabCode.CollabCode.WebApi.Controllers
         }
 
         [HttpPost("Register")]
-        public async Task<ActionResult> Register(User newUser)
+        public async Task<ActionResult> Register(NewUserReqDto newUser)
         {
                 var res = await _service.Register(newUser);
                 _logger.LogInformation($"{newUser.UserName} registerd succefully");
