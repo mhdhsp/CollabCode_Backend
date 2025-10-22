@@ -9,6 +9,7 @@ namespace CollabCode.CollabCode.Application.Mappings
     {
         public MappingProfile()
         {
+            CreateMap<User, NewUserReqDto>().ReverseMap();
             CreateMap<User, NewUserResDto>().ReverseMap();
 
             CreateMap<Room, NewRoomReqDto>().ReverseMap();

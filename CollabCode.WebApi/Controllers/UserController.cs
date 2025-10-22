@@ -16,7 +16,7 @@ namespace CollabCode.CollabCode.API.Controllers
         }
 
 
-        [HttpGet("UserRooms")]
+        [HttpGet("Rooms")]
         public async Task<IActionResult> GetUserRooms()
         {
             var user = HttpContext.Items["UserId"]?.ToString();
@@ -30,5 +30,9 @@ namespace CollabCode.CollabCode.API.Controllers
 
             return Ok(result);
         }
+
+       
+
+
     }
 }

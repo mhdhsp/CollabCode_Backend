@@ -6,7 +6,7 @@ namespace CollabCode.CollabCode.Application.Interfaces.Services
 {
     public interface IAuthService
     {
-        Task<NewUserResDto?> Register(User newUser);
+        Task<NewUserResDto?> Register(NewUserReqDto user);
         Task<NewUserResDto> Login(LoginReqDto ReqDto);
     }
 }

@@ -46,7 +46,7 @@ namespace CollabCode.CollabCode.WebApi.Controllers
             return Ok(new ApiResponse<NewRoomResDto> { Message = "joined success fully", Data = res });
         }
 
-        [HttpGet("Enter{RoomId}")]
+        [HttpGet("Enter/{RoomId}")]
         public async Task<ActionResult> Enter([FromRoute]int RoomId)
         {
             var user = HttpContext.Items["UserId"]?.ToString();

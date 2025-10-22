@@ -52,8 +52,9 @@ namespace CollabCode.CollabCode.Application.Services
 
             return new JwtSecurityTokenHandler().WriteToken(token);
         }
-        public async Task<NewUserResDto?> Register(User newUser)
+        public async Task<NewUserResDto?> Register(NewUserReqDto user)
         {
+            var newUser = _mapper.Map<User>(user);
             newUser.UserName=newUser.UserName.Trim().ToLower();
             if (await _repo.AnyAsync(u=>u.UserName.ToLower()==newUser.UserName))
                 throw new AlreadyExistsException("user Alredy Exist ");
