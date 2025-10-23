@@ -25,17 +25,21 @@ namespace CollabCode.CollabCode.Infrastructure.Respositories
         public async Task<T> AddAsync(T item)
         {
             if (item == null)
-                throw new NullReferenceException("Room couldnt created");
+                throw new NullReferenceException(" couldnt created");
             await _dbSet.AddAsync(item);
             await _context.SaveChangesAsync();
             return item;
         }
+
         public async Task<T> UpdateAsync(T item)
         {
+            if (item == null)
+                throw new NullReferenceException("Couldnt update ");
              _dbSet.Update(item);
               await _context.SaveChangesAsync();
             return item;
         }
+
         public async Task<T> DeleteAsync(T item)
         {
              _dbSet.Remove(item);

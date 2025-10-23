@@ -16,6 +16,9 @@ namespace CollabCode.CollabCode.Application.Mappings
 
             CreateMap<Project, NewProjectResDto>().ReverseMap();
             CreateMap<Project, ProjectResDto>().ReverseMap();
+
+            CreateMap<ProjectFile, NewFileReqDto>().ReverseMap();
+            CreateMap<ProjectFile, NewFileResDto>().ReverseMap();
             
         }
     }

@@ -56,6 +56,7 @@ namespace CollabCode.CollabCode.Application.Services
         {
             var newUser = _mapper.Map<User>(user);
             newUser.UserName = newUser?.UserName?.Trim().ToLower();
+
             if (await _repo.AnyAsync(u => u.UserName.ToLower() == newUser.UserName))
                 throw new AlreadyExistsException("UserName UnAvilable ");
             if (await _repo.AnyAsync(u => u.Email == newUser.Email))
@@ -63,10 +64,10 @@ namespace CollabCode.CollabCode.Application.Services
 
             newUser.PassWord = BCrypt.Net.BCrypt.HashPassword(newUser.PassWord);
             newUser.CreatedAt = DateTime.Now;
-
             await _repo.AddAsync(newUser);
 
             var res = _mapper.Map<NewUserResDto>(newUser);
+            
             return res;
         }
 

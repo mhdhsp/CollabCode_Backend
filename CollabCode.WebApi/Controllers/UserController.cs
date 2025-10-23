@@ -1,5 +1,6 @@
 ﻿using CollabCode.CollabCode.Application.Exceptions;
 using CollabCode.CollabCode.Application.Interfaces.Services;
+using CollabCode.CollabCode.Application.Services;
 using Microsoft.AspNetCore.Mvc;
 
 namespace CollabCode.CollabCode.API.Controllers
@@ -31,8 +32,17 @@ namespace CollabCode.CollabCode.API.Controllers
             return Ok(result);
         }
 
-       
 
+        [HttpDelete("{id}")]
+        public async Task<IActionResult> DeleteUser(int id)
+        {
+            var deleted = await _service.DeleteUserAsync(id);
+
+            if (!deleted)
+                return NotFound(new { message = $"User with ID {id} not found." });
+
+            return Ok(new { message = $"User with ID {id} has been deleted successfully." });
+        }
 
     }
 }

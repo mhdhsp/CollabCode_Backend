@@ -50,5 +50,16 @@ namespace CollabCode.CollabCode.Application.Services
             return dto;
         }
 
+
+        public async Task<bool> DeleteUserAsync(int id)
+        {
+            var user = await _userGRepo.GetByIdAsync(id);
+            if (user == null)
+                return false;
+
+            await _userGRepo.DeleteAsync(user);
+            return true;
+        }
+
     }
 }

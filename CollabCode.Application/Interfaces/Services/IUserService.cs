@@ -5,5 +5,6 @@ namespace CollabCode.CollabCode.Application.Interfaces.Services
     public interface IUserService
     {
         Task<UserProjectsDto?> GetAllUserRooms(int userid);
+        Task<bool> DeleteUserAsync(int id);
     }
 }

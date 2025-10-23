@@ -13,7 +13,7 @@ namespace CollabCode.CollabCode.Infrastructure.Persistense.Configurations
             builder.HasOne(u => u.Owner)
                 .WithMany(u => u.Projects)
                 .HasForeignKey(u => u.OwnerId)
-                .OnDelete(DeleteBehavior.NoAction);
+                .OnDelete(DeleteBehavior.Cascade);
         }
     }
 }

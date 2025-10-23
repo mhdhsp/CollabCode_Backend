@@ -6,7 +6,7 @@
         public DateTime CreatedAt { get; set; }
         public int? ModifiedBy { get; set; } = null;
         public DateTime? ModifiedAt { get; set; } = null;
-        public int DeletdBy { get; set; } = 0;
+        public int? DeletdBy { get; set; } =null;
         public DateTime? DeletedAt { get; set; } = null;
         public bool IsDeleted { get; set; } = false;
     }

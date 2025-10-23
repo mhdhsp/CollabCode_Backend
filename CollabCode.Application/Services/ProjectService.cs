@@ -48,29 +48,35 @@ namespace CollabCode.CollabCode.Application.Services
             var project = _mapper.Map<Project>(reqDto);
             project.OwnerId = userId;
             project.JoinCode = await GenerateJoinCode();
+
             if (!project.IsPublic && !string.IsNullOrEmpty(reqDto.PassWordHash))
                 project.PassWordHash = BCrypt.Net.BCrypt.HashPassword(reqDto.PassWordHash);
             project.CreatedAt = DateTime.Now;
             project.CreatedBy = userId;
 
-            var startingFile = new ProjectFile
-            {
-                FileName = "index.html",
-                Content = "start coding here !",
-                AssignedTo = userId,
-                AssignedAt = DateTime.Now,
-                ProjectId = project.Id,
-                CreatedAt = DateTime.Now,
-                CreatedBy = userId
-            };
-
-
+           
+            
             using var transaction = await _context.Database.BeginTransactionAsync();
 
             try
             {
-                await _fileGRepo.AddAsync(startingFile);
                 await _projectGRepo.AddAsync(project);
+
+                var startingFile = new ProjectFile
+                {
+                    FileName = "index",
+                    Content = "start coding here !",
+                    AssignedTo = userId,
+                    AssignedAt = DateTime.Now,
+                    ProjectId = project.Id,
+                    CreatedAt = DateTime.Now,
+                    CreatedBy = userId
+                };
+
+                _logger.LogInformation($" hello {startingFile.FileName}");
+               
+                await _fileGRepo.AddAsync(startingFile);
+               
                 await transaction.CommitAsync();
             }
             catch
@@ -96,6 +102,8 @@ namespace CollabCode.CollabCode.Application.Services
                 if (!BCrypt.Net.BCrypt.Verify(reqDto.PassWord, existing.PassWordHash))
                     throw new MismatchException("Invalid room password");
             }
+            if (existing.OwnerId == userId)
+                throw new Exception("You are the owner of the project");
             var roomMember = new MemberShip
             {
                 UserId = userId,
