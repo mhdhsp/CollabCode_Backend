@@ -1,179 +1,180 @@
-﻿//using AutoMapper;
-//using CollabCode.CollabCode.Application.DTO.ReqDto;
-//using CollabCode.CollabCode.Application.DTO.ResDto;
-//using CollabCode.CollabCode.Domain.Entities;
-//using CollabCode.CollabCode.Infrastructure.Persistense;
-//using CollabCode.CollabCode.Application.Exceptions;
-//using Microsoft.EntityFrameworkCore;
-//using Microsoft.IdentityModel.Tokens;
-//using System.Security.Cryptography;
-//using CollabCode.CollabCode.Application.Interfaces.Repositories;
-//using CollabCode.CollabCode.Application.Interfaces.Services;
-//using System.Runtime.InteropServices;
+﻿using AutoMapper;
+using CollabCode.CollabCode.Application.DTO.ReqDto;
+using CollabCode.CollabCode.Application.DTO.ResDto;
+using CollabCode.CollabCode.Domain.Entities;
+using CollabCode.CollabCode.Infrastructure.Persistense;
+using CollabCode.CollabCode.Application.Exceptions;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
+using System.Security.Cryptography;
+using CollabCode.CollabCode.Application.Interfaces.Repositories;
+using CollabCode.CollabCode.Application.Interfaces.Services;
+using System.Runtime.InteropServices;
 
-//namespace CollabCode.CollabCode.Application.Services
-//{
+namespace CollabCode.CollabCode.Application.Services
+{
 
-//    public class ProjectService : IProjectService
-//    {
-//        private readonly IGenericRepository<Project> _projectGRepo;
-//        private readonly IGenericRepository<ProjectFile> _fileGRepo;
-//        private readonly IGenericRepository<MemberShip> _memberGRepo;
-//        private readonly AppDbContext _context;
-//        private readonly IRoomRepo _roomRepo;
-//        private readonly IMapper _mapper;
-//        private readonly ILogger<ProjectService> _logger;
+    public class ProjectService : IProjectService
+    {
+        private readonly IGenericRepository<Project> _projectGRepo;
+        private readonly IGenericRepository<ProjectFile> _fileGRepo;
+        private readonly IGenericRepository<MemberShip> _memberGRepo;
+        private readonly AppDbContext _context;
+        private readonly IMapper _mapper;
+        private readonly ILogger<ProjectService> _logger;
 
-//        public ProjectService(
-//            IGenericRepository<Project> Repo,
-//            IGenericRepository<ProjectFile> FRepo,
-//            IGenericRepository<MemberShip> MRepo,
-//            IMapper mapper, IRoomRepo roomRepo,
-//            ILogger<ProjectService> logger, AppDbContext context)
+        public ProjectService(
+            IGenericRepository<Project> Repo,
+            IGenericRepository<ProjectFile> FRepo,
+            IGenericRepository<MemberShip> MRepo,
 
-//        {
+            ILogger<ProjectService> logger,
+            AppDbContext context,
+            IMapper Mapper
+            )
+        {
 
-//            _projectGRepo = Repo;
-//            _fileGRepo = FRepo;
-//            _memberGRepo = MRepo;
-//            _mapper = mapper;
-//            _logger = logger;
-//            _context = context;
+            _projectGRepo = Repo;
+            _fileGRepo = FRepo;
+            _memberGRepo = MRepo;
+            _mapper = Mapper;
+            _logger = logger;
+            _context = context;
 
-//        }
+        }
 
-//        public async Task<NewProjectResDto> CreateNewProject(NewProjectReqDto reqDto, int userId)
-//        {
-//            var project = _mapper.Map<Project>(reqDto);
-//            project.OwnerId = userId;
-//            project.JoinCode = await GenerateJoinCode();
-//            if (!project.IsPublic && !string.IsNullOrEmpty(reqDto.PassWordHash))
-//                project.PassWordHash = BCrypt.Net.BCrypt.HashPassword(reqDto.PassWordHash);
-//            project.CreatedAt = DateTime.Now;
-//            project.CreatedBy = userId;
+        public async Task<NewProjectResDto> CreateNewProject(NewProjectReqDto reqDto, int userId)
+        {
+            var project = _mapper.Map<Project>(reqDto);
+            project.OwnerId = userId;
+            project.JoinCode = await GenerateJoinCode();
+            if (!project.IsPublic && !string.IsNullOrEmpty(reqDto.PassWordHash))
+                project.PassWordHash = BCrypt.Net.BCrypt.HashPassword(reqDto.PassWordHash);
+            project.CreatedAt = DateTime.Now;
+            project.CreatedBy = userId;
 
-//            var startingFile = new ProjectFile
-//            {
-//                FileName = "index.html",
-//                Content = "start coding here !",
-//                AssignedTo = userId,
-//                AssignedAt = DateTime.Now,
-//                ProjectId = project.Id,
-//                CreatedAt = DateTime.Now,
-//                CreatedBy = userId
-//            };
-
-
-//            using var transaction = await _context.Database.BeginTransactionAsync();
-
-//            try
-//            {
-//                await _fileGRepo.AddAsync(startingFile);
-//                await _projectGRepo.AddAsync(project);
-//                await transaction.CommitAsync();
-//            }
-//            catch
-//            {
-//                await transaction.RollbackAsync();
-//                throw new Exception("Couldnt create project now,Try agian !");
-//            }
+            var startingFile = new ProjectFile
+            {
+                FileName = "index.html",
+                Content = "start coding here !",
+                AssignedTo = userId,
+                AssignedAt = DateTime.Now,
+                ProjectId = project.Id,
+                CreatedAt = DateTime.Now,
+                CreatedBy = userId
+            };
 
 
-//            var ResDto = _mapper.Map<NewProjectResDto>(project);
-//            return ResDto;
-//        }
+            using var transaction = await _context.Database.BeginTransactionAsync();
 
-//        public async Task<NewProjectResDto> JoinProject(ProjectJoinReqDto reqDto, int userId)
-//        {
-//            var existing = await _projectGRepo.FirstOrDefaultAsync(u => u.JoinCode == reqDto.JoinCode);
-//            if (existing == null)
-//                throw new NotFoundException("Project  not found");
-//            if (await _memberGRepo.AnyAsync(u => u.UserId == userId && u.ProjectId == existing.Id))
-//                throw new AlreadyExistsException("You alraedy a member of this room");
-//            if (!existing.IsPublic)
-//            {
-//                if (!BCrypt.Net.BCrypt.Verify(reqDto.PassWord, existing.PassWordHash))
-//                    throw new MismatchException("Invalid room password");
-//            }
-//            var roomMember = new MemberShip
-//            {
-//                UserId = userId,
-//                ProjectId = existing.Id,
-//                CreatedAt = DateTime.Now,
-//                CreatedBy = userId
-//            };
-//            await _memberGRepo.AddAsync(roomMember);
-//            var res = _mapper.Map<NewProjectResDto>(existing);
-//            return res;
-//        }
+            try
+            {
+                await _fileGRepo.AddAsync(startingFile);
+                await _projectGRepo.AddAsync(project);
+                await transaction.CommitAsync();
+            }
+            catch
+            {
+                await transaction.RollbackAsync();
+                throw new Exception("Couldnt create project now,Try agian !");
+            }
 
 
-//        public async Task<ProjectResDto> EnterProject(int projectId, int userId)
-//        {
-//            _logger.LogInformation($" from roomservice{projectId}+{userId}");
-//            var project  = await _projectGRepo.GetByIdAsync(projectId);
-//            if (project == null)
-//                throw new NotFoundException("Project  not found");
-//            else if (!project.IsDeleted)
-//                throw new NotFoundException("project is not active ");
+            var ResDto = _mapper.Map<NewProjectResDto>(project);
+            return ResDto;
+        }
 
-//            var projectDto = new ProjectResDto
-//            {
-//                ProjectName = project.ProjectName,
-//                OwnerId=project.OwnerId,
-//                Members=project.Members.Select(u=>new MemberDto { 
-//                    UserName=u.User?.UserName,
-//                    id=u.Id
-//                }).ToList()
-//            };
-
-//            var res = _mapper.Map<ProjectResDto>(projectDto);
-//            return res;
-//        }
-
-//        public async Task<bool?> LeaveRoom(int userId, int projectId)
-//        {
-//            if (!await _projectGRepo.AnyAsync(u => u.Id == projectId))
-//                throw new NotFoundException(" Project not found");
-//            else if (await _projectGRepo.AnyAsync(u => u.OwnerId == userId))
-//                throw new UnauthorizedAccessException("Owner canot leave the project");
-//            else if (await _projectGRepo.AnyAsync(u => u.Id == projectId && u.IsDeleted == true))
-//                throw new NotFoundException("Project not found");
-
-//            var membership = await _memberGRepo.FirstOrDefaultAsync(u => u.UserId == userId && u.ProjectId == projectId);
-//            if (membership == null)
-//                throw new NotFoundException("You are not member of the project");
-//            await _memberGRepo.DeleteAsync(membership);
-//            return true;
-//        }
-
-//        public async Task<bool> DestroyProject(int userId, int projectid)
-//        {
-//            var project = await _projectGRepo.GetByIdAsync(projectid);
-//            if (project == null || project.IsDeleted)
-//                throw new NotFoundException("project not found");
+        public async Task<NewProjectResDto> JoinProject(ProjectJoinReqDto reqDto, int userId)
+        {
+            var existing = await _projectGRepo.FirstOrDefaultAsync(u => u.JoinCode == reqDto.JoinCode);
+            if (existing == null)
+                throw new NotFoundException("Project  not found");
+            if (await _memberGRepo.AnyAsync(u => u.UserId == userId && u.ProjectId == existing.Id))
+                throw new AlreadyExistsException("You alraedy a member of this room");
+            if (!existing.IsPublic)
+            {
+                if (!BCrypt.Net.BCrypt.Verify(reqDto.PassWord, existing.PassWordHash))
+                    throw new MismatchException("Invalid room password");
+            }
+            var roomMember = new MemberShip
+            {
+                UserId = userId,
+                ProjectId = existing.Id,
+                CreatedAt = DateTime.Now,
+                CreatedBy = userId
+            };
+            await _memberGRepo.AddAsync(roomMember);
+            var res = _mapper.Map<NewProjectResDto>(existing);
+            return res;
+        }
 
 
-//            if (project.OwnerId != userId)
-//                throw new UnauthorizedAccessException("Only the project owner can delete this room");
+        public async Task<ProjectResDto> EnterProject(int projectId, int userId)
+        {
+            _logger.LogInformation($" from roomservice{projectId}+{userId}");
+            var project  = await _projectGRepo.GetByIdAsync(projectId);
+            if (project == null)
+                throw new NotFoundException("Project  not found");
+            else if (!project.IsDeleted)
+                throw new NotFoundException("project is not active ");
 
-//            //project.IsDeleted = true;
-//            //project.DeletdBy = userId;
-//            //project.DeletedAt = DateTime.Now;
-//            //return true;
-//             await _projectGRepo.DeleteAsync(project);
-//            return true;
-//        }
+            var projectDto = new ProjectResDto
+            {
+                ProjectName = project.ProjectName,
+                OwnerId=project.OwnerId,
+                Members=project.Members.Select(u=>new MemberDto { 
+                    UserName=u.User?.UserName,
+                    id=u.Id
+                }).ToList()
+            };
 
-//        private async Task<string> GenerateJoinCode()
-//        {
-//            string code;
-//            do
-//            {
-//                code = RandomNumberGenerator.GetInt32(0, 100000).ToString("D6");
-//            }
-//            while (await _projectGRepo.AnyAsync(u => u.JoinCode == code));
-//            return code;
-//        }
-//    }
-//}
+            var res = _mapper.Map<ProjectResDto>(projectDto);
+            return res;
+        }
+
+        public async Task<bool?> LeaveProject(int userId, int projectId)
+        {
+            if (!await _projectGRepo.AnyAsync(u => u.Id == projectId))
+                throw new NotFoundException(" Project not found");
+            else if (await _projectGRepo.AnyAsync(u => u.OwnerId == userId))
+                throw new UnauthorizedAccessException("Owner canot leave the project");
+            else if (await _projectGRepo.AnyAsync(u => u.Id == projectId && u.IsDeleted == true))
+                throw new NotFoundException("Project not found");
+
+            var membership = await _memberGRepo.FirstOrDefaultAsync(u => u.UserId == userId && u.ProjectId == projectId);
+            if (membership == null)
+                throw new NotFoundException("You are not member of the project");
+            await _memberGRepo.DeleteAsync(membership);
+            return true;
+        }
+
+        public async Task<bool> DestroyProject(int userId, int projectid)
+        {
+            var project = await _projectGRepo.GetByIdAsync(projectid);
+            if (project == null || project.IsDeleted)
+                throw new NotFoundException("project not found");
+
+
+            if (project.OwnerId != userId)
+                throw new UnauthorizedAccessException("Only the project owner can delete this room");
+
+            //project.IsDeleted = true;
+            //project.DeletdBy = userId;
+            //project.DeletedAt = DateTime.Now;
+            //return true;
+             await _projectGRepo.DeleteAsync(project);
+            return true;
+        }
+
+        private async Task<string> GenerateJoinCode()
+        {
+            string code;
+            do
+            {
+                code = RandomNumberGenerator.GetInt32(0, 100000).ToString("D6");
+            }
+            while (await _projectGRepo.AnyAsync(u => u.JoinCode == code));
+            return code;
+        }
+    }
+}
