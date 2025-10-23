@@ -4,6 +4,6 @@ namespace CollabCode.CollabCode.Application.Interfaces.Services
 {
     public interface IUserService
     {
-        Task<UserRoomsDto?> GetAllUserRooms(int userid);
+        Task<UserProjectsDto?> GetAllUserRooms(int userid);
     }
 }

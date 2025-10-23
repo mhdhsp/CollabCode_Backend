@@ -10,7 +10,7 @@ namespace CollabCode.CollabCode.Application.Interfaces.Services
         Task<NewProjectResDto> JoinProject(ProjectJoinReqDto reqDto, int userId);
 
         Task<ProjectResDto> EnterProject(int projectid, int userId);
-        Task<bool?> LeaveRoom(int userId, int projectid);
-        Task<bool> DestroyRoom(int userId, int projectid);
+        Task<bool?> LeaveProject(int userId, int projectid);
+        Task<bool> DestroyProject(int userId, int projectid);
     }
 }

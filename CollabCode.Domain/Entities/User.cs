@@ -18,7 +18,6 @@ namespace CollabCode.CollabCode.Domain.Entities
         [StringLength(200, MinimumLength = 5, ErrorMessage = "Password must be between 5 and 20 characters.")]
         public string? PassWord { get; set; }
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
-        public DateTime LastLogin { get; set; }
 
         [JsonIgnore]
         public List<Project> Projects { get; set; } = new List<Project>();

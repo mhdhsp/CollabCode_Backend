@@ -1,31 +1,54 @@
-﻿//using AutoMapper;
-//using CollabCode.CollabCode.Application.DTO.ResDto;
-//using CollabCode.CollabCode.Application.Exceptions;
-//using CollabCode.CollabCode.Application.Interfaces.Repositories;
-//using CollabCode.CollabCode.Application.Interfaces.Services;
+﻿using AutoMapper;
+using CollabCode.CollabCode.Application.DTO.ResDto;
+using CollabCode.CollabCode.Application.Exceptions;
+using CollabCode.CollabCode.Application.Interfaces.Repositories;
+using CollabCode.CollabCode.Application.Interfaces.Services;
+using CollabCode.CollabCode.Domain.Entities;
 
-//namespace CollabCode.CollabCode.Application.Services
-//{
-//    public class UserService : IUserService
-//    {
-//        private readonly IUserRepo _repo;
-//        private readonly IMapper _mapper;
+namespace CollabCode.CollabCode.Application.Services
+{
+    public class UserService : IUserService
+    {
+        private readonly IGenericRepository<User> _userGRepo;
+        private readonly IMapper _mapper;
 
-//        public UserService(IUserRepo repo, IMapper mapper)
-//        {
-//            _repo = repo;
-//            _mapper = mapper;
-//        }
+        public UserService(IGenericRepository<User> Repo, IMapper mapper)
+        {
+            _userGRepo = Repo;
+            _mapper = mapper;
+        }
 
-      
 
-//        public async Task<UserRoomsDto?> GetAllUserRooms(int userId)
-//        {
-//            var res= await _repo.GetAllUserRooms(userId);
-//            if (res == null)
-//                throw new NotFoundException("No rooms available");
-//            return res;
-//        }
 
-//    }
-//}
+        public async Task<UserProjectsDto?> GetAllUserRooms(int userId)
+        {
+            var res = await _userGRepo.GetByIdAsync(userId);
+
+            if (res == null)
+                throw new NotFoundException("No rooms available");
+
+            var dto = new UserProjectsDto
+            {
+                UserName = res.UserName,
+                OwnedRooms = res.Projects.Select(
+                    u => new ProjectDto 
+                    {
+                        Id=u.Id,
+                        ProjectName=u.ProjectName,
+                        JoinCode=u.JoinCode
+                    }
+                    ).ToList(),
+                JoinedRooms = res.MemberShips.Select(
+                    u => new ProjectDto
+                    {
+                        Id=u.Id,
+                        ProjectName=u.Project?.ProjectName
+                    }
+                    ).ToList()
+            };
+            
+            return dto;
+        }
+
+    }
+}

@@ -20,7 +20,6 @@ namespace CollabCode.CollabCode.Application.Services
         private readonly IGenericRepository<ProjectFile> _fileGRepo;
         private readonly IGenericRepository<MemberShip> _memberGRepo;
         private readonly AppDbContext _context;
-        private readonly IRoomRepo _roomRepo;
         private readonly IMapper _mapper;
         private readonly ILogger<ProjectService> _logger;
 
@@ -28,15 +27,17 @@ namespace CollabCode.CollabCode.Application.Services
             IGenericRepository<Project> Repo,
             IGenericRepository<ProjectFile> FRepo,
             IGenericRepository<MemberShip> MRepo,
-            IMapper mapper, IRoomRepo roomRepo,
-            ILogger<ProjectService> logger, AppDbContext context)
 
+            ILogger<ProjectService> logger,
+            AppDbContext context,
+            IMapper Mapper
+            )
         {
 
             _projectGRepo = Repo;
             _fileGRepo = FRepo;
             _memberGRepo = MRepo;
-            _mapper = mapper;
+            _mapper = Mapper;
             _logger = logger;
             _context = context;
 
@@ -131,7 +132,7 @@ namespace CollabCode.CollabCode.Application.Services
             return res;
         }
 
-        public async Task<bool?> LeaveRoom(int userId, int projectId)
+        public async Task<bool?> LeaveProject(int userId, int projectId)
         {
             if (!await _projectGRepo.AnyAsync(u => u.Id == projectId))
                 throw new NotFoundException(" Project not found");
