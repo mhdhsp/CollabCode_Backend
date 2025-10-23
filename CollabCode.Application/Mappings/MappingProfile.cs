@@ -12,10 +12,10 @@ namespace CollabCode.CollabCode.Application.Mappings
             CreateMap<User, NewUserReqDto>().ReverseMap();
             CreateMap<User, NewUserResDto>().ReverseMap();
 
-            CreateMap<Room, NewRoomReqDto>().ReverseMap();
+            CreateMap<Project, NewProjectReqDto>().ReverseMap();
 
-            CreateMap<Room, NewRoomResDto>().ReverseMap();
-            CreateMap<Room, RoomResDto>().ReverseMap();
+            CreateMap<Project, NewProjectResDto>().ReverseMap();
+            CreateMap<Project, ProjectResDto>().ReverseMap();
             
         }
     }

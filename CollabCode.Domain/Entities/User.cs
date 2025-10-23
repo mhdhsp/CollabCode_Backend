@@ -21,9 +21,9 @@ namespace CollabCode.CollabCode.Domain.Entities
         public DateTime LastLogin { get; set; }
 
         [JsonIgnore]
-        public List<Room> Rooms { get; set; } = new List<Room>();
+        public List<Project> Projects { get; set; } = new List<Project>();
         [JsonIgnore]
-        public List<RoomMember> MemberShips { get; set; } = new List<RoomMember>();
+        public List<MemberShip> MemberShips { get; set; } = new List<MemberShip>();
 
     }
 }

@@ -17,20 +17,20 @@ namespace CollabCode.CollabCode.WebApi.Controllers
     {
         private readonly IAuthService _service;
         private readonly ILogger<AuthController> _logger;
-     
-       public AuthController(IAuthService service,ILogger<AuthController> logger)
+
+        public AuthController(IAuthService service, ILogger<AuthController> logger)
         {
             _service = service;
             _logger = logger;
-            
+
         }
 
         [HttpPost("Register")]
         public async Task<ActionResult> Register(NewUserReqDto newUser)
         {
-                var res = await _service.Register(newUser);
-                _logger.LogInformation($"{newUser.UserName} registerd succefully");
-                return Ok(new ApiResponse<NewUserResDto> { Message = "User added ", Data = res });
+            var res = await _service.Register(newUser);
+            _logger.LogInformation($"{newUser.UserName} registerd succefully");
+            return Ok(new ApiResponse<NewUserResDto> { Message = "User added ", Data = res });
         }
 
         [HttpPost("Login")]
@@ -40,7 +40,7 @@ namespace CollabCode.CollabCode.WebApi.Controllers
             _logger.LogInformation($"{ReqDto.UserName} Loginned succesfully");
             return Ok(new ApiResponse<NewUserResDto> { Message = "Loginned succesfully", Data = res });
         }
-        
+
 
     }
 }

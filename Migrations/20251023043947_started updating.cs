@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace CollabCode.Migrations
 {
     /// <inheritdoc />
-    public partial class roommember : Migration
+    public partial class startedupdating : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -29,70 +29,39 @@ namespace CollabCode.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "Rooms",
+                name: "Projects",
                 columns: table => new
                 {
                     Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    RoomName = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    ProjectName = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     JoinCode = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     OwnerId = table.Column<int>(type: "int", nullable: false),
                     IsPublic = table.Column<bool>(type: "bit", nullable: false),
                     PassWordHash = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     Language = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     CurrentCode = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    CreatedBy = table.Column<int>(type: "int", nullable: false),
                     CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    IsActive = table.Column<bool>(type: "bit", nullable: false)
+                    ModifiedBy = table.Column<int>(type: "int", nullable: false),
+                    ModifiedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    DeletdBy = table.Column<int>(type: "int", nullable: false),
+                    DeletedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    IsDeleted = table.Column<bool>(type: "bit", nullable: true)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_Rooms", x => x.Id);
+                    table.PrimaryKey("PK_Projects", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_Rooms_Users_OwnerId",
+                        name: "FK_Projects_Users_OwnerId",
                         column: x => x.OwnerId,
                         principalTable: "Users",
                         principalColumn: "Id");
                 });
 
-            migrationBuilder.CreateTable(
-                name: "MemberShips",
-                columns: table => new
-                {
-                    Id = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
-                    UserId = table.Column<int>(type: "int", nullable: false),
-                    RoomId = table.Column<int>(type: "int", nullable: false),
-                    IsOwner = table.Column<bool>(type: "bit", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_MemberShips", x => x.Id);
-                    table.ForeignKey(
-                        name: "FK_MemberShips_Rooms_RoomId",
-                        column: x => x.RoomId,
-                        principalTable: "Rooms",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
-                    table.ForeignKey(
-                        name: "FK_MemberShips_Users_UserId",
-                        column: x => x.UserId,
-                        principalTable: "Users",
-                        principalColumn: "Id");
-                });
-
             migrationBuilder.CreateIndex(
-                name: "IX_MemberShips_RoomId",
-                table: "MemberShips",
-                column: "RoomId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_MemberShips_UserId",
-                table: "MemberShips",
-                column: "UserId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_Rooms_OwnerId",
-                table: "Rooms",
+                name: "IX_Projects_OwnerId",
+                table: "Projects",
                 column: "OwnerId");
         }
 
@@ -100,10 +69,7 @@ namespace CollabCode.Migrations
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropTable(
-                name: "MemberShips");
-
-            migrationBuilder.DropTable(
-                name: "Rooms");
+                name: "Projects");
 
             migrationBuilder.DropTable(
                 name: "Users");

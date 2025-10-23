@@ -7,12 +7,12 @@ using System.Text;
 using CollabCode.CollabCode.Application.Exceptions;
 using CollabCode.CollabCode.Infrastructure.Persistense;
 using CollabCode.CollabCode.WebApi.MiddleWare;
-using CollabCode.CollabCode.Application.Services;
 using CollabCode.CollabCode.WebApi.Common;
 using CollabCode.CollabCode.Application.Mappings;
 using CollabCode.CollabCode.Application.Interfaces.Repositories;
 using CollabCode.CollabCode.Infrastructure.Respositories;
 using CollabCode.CollabCode.Application.Interfaces.Services;
+//using CollabCode.CollabCode.Application.Services;
 
 namespace CollabCode
 {
@@ -40,13 +40,13 @@ namespace CollabCode
             options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
 
-            builder.Services.AddScoped<IAuthService, AuthService>();
-            builder.Services.AddScoped<IRoomService, RoomService>();
-            builder.Services.AddScoped<IUserService, UserService>();
+            //builder.Services.AddScoped<IAuthService, AuthService>();
+            //builder.Services.AddScoped<IProjectService, ProjectService>();
+            //builder.Services.AddScoped<IUserService, UserService>();
 
             builder.Services.AddScoped(typeof(IGenericRepository<>),typeof(GenericRepository<>));
-            builder.Services.AddScoped<IRoomRepo, RoomRepo>();
-            builder.Services.AddScoped<IUserRepo, UserRepo>();
+            //builder.Services.AddScoped<IProjectRepo, ProjectRepo>();
+            //builder.Services.AddScoped<IUserRepo, UserRepo>();
 
 
 

@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace CollabCode.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20251021104804_room member")]
-    partial class roommember
+    [Migration("20251023043947_started updating")]
+    partial class startedupdating
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -25,7 +25,7 @@ namespace CollabCode.Migrations
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
 
-            modelBuilder.Entity("CollabCode.CollabCode.Domain.Entities.Room", b =>
+            modelBuilder.Entity("CollabCode.CollabCode.Domain.Entities.Project", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -36,10 +36,19 @@ namespace CollabCode.Migrations
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("datetime2");
 
+                    b.Property<int>("CreatedBy")
+                        .HasColumnType("int");
+
                     b.Property<string>("CurrentCode")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<bool>("IsActive")
+                    b.Property<int>("DeletdBy")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("DeletedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<bool?>("IsDeleted")
                         .HasColumnType("bit");
 
                     b.Property<bool>("IsPublic")
@@ -52,46 +61,26 @@ namespace CollabCode.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<DateTime>("ModifiedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("ModifiedBy")
+                        .HasColumnType("int");
+
                     b.Property<int>("OwnerId")
                         .HasColumnType("int");
 
                     b.Property<string>("PassWordHash")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("RoomName")
+                    b.Property<string>("ProjectName")
                         .HasColumnType("nvarchar(max)");
 
                     b.HasKey("Id");
 
                     b.HasIndex("OwnerId");
 
-                    b.ToTable("Rooms");
-                });
-
-            modelBuilder.Entity("CollabCode.CollabCode.Domain.Entities.RoomMember", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<bool>("IsOwner")
-                        .HasColumnType("bit");
-
-                    b.Property<int>("RoomId")
-                        .HasColumnType("int");
-
-                    b.Property<int>("UserId")
-                        .HasColumnType("int");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("RoomId");
-
-                    b.HasIndex("UserId");
-
-                    b.ToTable("MemberShips");
+                    b.ToTable("Projects");
                 });
 
             modelBuilder.Entity("CollabCode.CollabCode.Domain.Entities.User", b =>
@@ -127,10 +116,10 @@ namespace CollabCode.Migrations
                     b.ToTable("Users");
                 });
 
-            modelBuilder.Entity("CollabCode.CollabCode.Domain.Entities.Room", b =>
+            modelBuilder.Entity("CollabCode.CollabCode.Domain.Entities.Project", b =>
                 {
                     b.HasOne("CollabCode.CollabCode.Domain.Entities.User", "Owner")
-                        .WithMany("Rooms")
+                        .WithMany("Projects")
                         .HasForeignKey("OwnerId")
                         .OnDelete(DeleteBehavior.NoAction)
                         .IsRequired();
@@ -138,35 +127,9 @@ namespace CollabCode.Migrations
                     b.Navigation("Owner");
                 });
 
-            modelBuilder.Entity("CollabCode.CollabCode.Domain.Entities.RoomMember", b =>
-                {
-                    b.HasOne("CollabCode.CollabCode.Domain.Entities.Room", "Room")
-                        .WithMany("Members")
-                        .HasForeignKey("RoomId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("CollabCode.CollabCode.Domain.Entities.User", "User")
-                        .WithMany("MemberShips")
-                        .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.NoAction)
-                        .IsRequired();
-
-                    b.Navigation("Room");
-
-                    b.Navigation("User");
-                });
-
-            modelBuilder.Entity("CollabCode.CollabCode.Domain.Entities.Room", b =>
-                {
-                    b.Navigation("Members");
-                });
-
             modelBuilder.Entity("CollabCode.CollabCode.Domain.Entities.User", b =>
                 {
-                    b.Navigation("MemberShips");
-
-                    b.Navigation("Rooms");
+                    b.Navigation("Projects");
                 });
 #pragma warning restore 612, 618
         }
