@@ -24,6 +24,8 @@ namespace CollabCode.CollabCode.Infrastructure.Respositories
         }
         public async Task<T> AddAsync(T item)
         {
+            if (item == null)
+                throw new NullReferenceException("Room couldnt created");
             await _dbSet.AddAsync(item);
             await _context.SaveChangesAsync();
             return item;

@@ -5,6 +5,6 @@ namespace CollabCode.CollabCode.Application.Interfaces.Repositories
 {
     public interface IRoomRepo
     {
-        Task<RoomResDto?> GetByIdAsync(int id);
+        Task<ProjectResDto?> GetByIdAsync(int id);
     }
 }

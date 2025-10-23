@@ -4,6 +4,7 @@ using CollabCode.CollabCode.Infrastructure.Persistense;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace CollabCode.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20251023052234_added project file")]
+    partial class addedprojectfile
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -21,50 +24,6 @@ namespace CollabCode.Migrations
                 .HasAnnotation("Relational:MaxIdentifierLength", 128);
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
-
-            modelBuilder.Entity("CollabCode.CollabCode.Domain.Entities.MemberShip", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("datetime2");
-
-                    b.Property<int>("CreatedBy")
-                        .HasColumnType("int");
-
-                    b.Property<int>("DeletdBy")
-                        .HasColumnType("int");
-
-                    b.Property<DateTime?>("DeletedAt")
-                        .HasColumnType("datetime2");
-
-                    b.Property<bool>("IsDeleted")
-                        .HasColumnType("bit");
-
-                    b.Property<DateTime?>("ModifiedAt")
-                        .HasColumnType("datetime2");
-
-                    b.Property<int?>("ModifiedBy")
-                        .HasColumnType("int");
-
-                    b.Property<int>("ProjectId")
-                        .HasColumnType("int");
-
-                    b.Property<int>("UserId")
-                        .HasColumnType("int");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("ProjectId");
-
-                    b.HasIndex("UserId");
-
-                    b.ToTable("MemberShips");
-                });
 
             modelBuilder.Entity("CollabCode.CollabCode.Domain.Entities.Project", b =>
                 {
@@ -207,25 +166,6 @@ namespace CollabCode.Migrations
                     b.ToTable("Users");
                 });
 
-            modelBuilder.Entity("CollabCode.CollabCode.Domain.Entities.MemberShip", b =>
-                {
-                    b.HasOne("CollabCode.CollabCode.Domain.Entities.Project", "Project")
-                        .WithMany("Members")
-                        .HasForeignKey("ProjectId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("CollabCode.CollabCode.Domain.Entities.User", "User")
-                        .WithMany("MemberShips")
-                        .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.NoAction)
-                        .IsRequired();
-
-                    b.Navigation("Project");
-
-                    b.Navigation("User");
-                });
-
             modelBuilder.Entity("CollabCode.CollabCode.Domain.Entities.Project", b =>
                 {
                     b.HasOne("CollabCode.CollabCode.Domain.Entities.User", "Owner")
@@ -251,14 +191,10 @@ namespace CollabCode.Migrations
             modelBuilder.Entity("CollabCode.CollabCode.Domain.Entities.Project", b =>
                 {
                     b.Navigation("Files");
-
-                    b.Navigation("Members");
                 });
 
             modelBuilder.Entity("CollabCode.CollabCode.Domain.Entities.User", b =>
                 {
-                    b.Navigation("MemberShips");
-
                     b.Navigation("Projects");
                 });
 #pragma warning restore 612, 618
