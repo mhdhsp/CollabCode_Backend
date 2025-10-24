@@ -45,6 +45,7 @@ namespace CollabCode
             builder.Services.AddScoped<IAuthService, AuthService>();
             builder.Services.AddScoped<IProjectService, ProjectService>();
             builder.Services.AddScoped<IUserService, UserService>();
+            builder.Services.AddScoped<IFileService, FileService>();
 
             builder.Services.AddScoped(typeof(IGenericRepository<>),typeof(GenericRepository<>));
         
@@ -182,6 +183,7 @@ namespace CollabCode
                         NotFoundException=>StatusCodes.Status404NotFound,
                         MismatchException=>StatusCodes.Status400BadRequest,
                         UnauthorizedAccessException=>StatusCodes.Status401Unauthorized,
+                        BadHttpRequestException=>StatusCodes.Status400BadRequest,
                         _ => StatusCodes.Status500InternalServerError
                     };
                     

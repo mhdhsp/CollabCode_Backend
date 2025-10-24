@@ -4,6 +4,7 @@ using CollabCode.CollabCode.Application.Exceptions;
 using CollabCode.CollabCode.Application.Interfaces.Repositories;
 using CollabCode.CollabCode.Application.Interfaces.Services;
 using CollabCode.CollabCode.Domain.Entities;
+using Microsoft.EntityFrameworkCore;
 
 namespace CollabCode.CollabCode.Application.Services
 {
@@ -22,7 +23,12 @@ namespace CollabCode.CollabCode.Application.Services
 
         public async Task<UserProjectsDto?> GetAllUserRooms(int userId)
         {
-            var res = await _userGRepo.GetByIdAsync(userId);
+            var res = await _userGRepo.Query()
+                .Where(u => u.Id == userId)
+                .Include(u => u.Projects)
+                .Include(u => u.MemberShips)
+                    .ThenInclude(u => u.Project)
+                .FirstOrDefaultAsync();
 
             if (res == null)
                 throw new NotFoundException("No rooms available");

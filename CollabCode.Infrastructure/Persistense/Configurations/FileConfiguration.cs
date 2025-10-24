@@ -9,6 +9,7 @@ namespace CollabCode.CollabCode.Infrastructure.Persistense.Configurations
         public void Configure(EntityTypeBuilder<ProjectFile> builder)
         {
             builder.HasKey(u => u.Id);
+
             builder.HasOne(u => u.Project)
                 .WithMany(u => u.Files)
                 .HasForeignKey(u => u.ProjectId)

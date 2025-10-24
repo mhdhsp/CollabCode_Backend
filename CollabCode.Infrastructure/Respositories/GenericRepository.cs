@@ -46,7 +46,10 @@ namespace CollabCode.CollabCode.Infrastructure.Respositories
             await _context.SaveChangesAsync();
             return item;
         }
-
+        public IQueryable<T> Query()
+        {
+            return _dbSet.AsQueryable();
+        }
         public async Task<bool> AnyAsync(Expression<Func<T, bool>> predicate)
         {
             return await _dbSet.AnyAsync(predicate);

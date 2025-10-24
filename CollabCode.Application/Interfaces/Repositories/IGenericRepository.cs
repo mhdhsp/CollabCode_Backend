@@ -11,6 +11,8 @@ namespace CollabCode.CollabCode.Application.Interfaces.Repositories
         Task<T> UpdateAsync(T item);
         Task<T> DeleteAsync(T item);
 
+        IQueryable<T> Query();
+
         Task<bool> AnyAsync(Expression<Func<T, bool>> predicate);
 
         Task<T?> FirstOrDefaultAsync(Expression<Func<T, bool>> predicate);

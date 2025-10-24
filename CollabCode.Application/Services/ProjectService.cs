@@ -120,24 +120,38 @@ namespace CollabCode.CollabCode.Application.Services
         public async Task<ProjectResDto> EnterProject(int projectId, int userId)
         {
             _logger.LogInformation($" from roomservice{projectId}+{userId}");
-            var project  = await _projectGRepo.GetByIdAsync(projectId);
+            var project = await _projectGRepo.Query()
+                .Where(u => u.Id == projectId && !u.IsDeleted)
+                .Include(u => u.Members)
+                    .ThenInclude(u => u.User)
+                .Include(u => u.Files)
+                .FirstOrDefaultAsync();
+
             if (project == null)
                 throw new NotFoundException("Project  not found");
-            else if (!project.IsDeleted)
-                throw new NotFoundException("project is not active ");
 
             var projectDto = new ProjectResDto
             {
                 ProjectName = project.ProjectName,
-                OwnerId=project.OwnerId,
-                Members=project.Members.Select(u=>new MemberDto { 
-                    UserName=u.User?.UserName,
-                    id=u.Id
-                }).ToList()
+                OwnerId = project.OwnerId,
+                Members = project.Members.Select(u => new MemberDto
+                {
+                    UserName = u.User?.UserName,
+                    id = u.Id
+                }).ToList(),
+                Files = project.Files.Select(
+                    u => new FileDto
+                    {
+                        Id = u.Id,
+                        FileName=u.FileName,
+                        ProjectId=u.ProjectId,
+                        AssignedTo=u.AssignedTo,
+                        Content=u.Content
+                    }
+                    ).ToList()
             };
 
-            var res = _mapper.Map<ProjectResDto>(projectDto);
-            return res;
+            return projectDto;
         }
 
         public async Task<bool?> LeaveProject(int userId, int projectId)
