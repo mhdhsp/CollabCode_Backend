@@ -79,6 +79,8 @@ namespace CollabCode.CollabCode.Application.Services
                 throw new NotFoundException($"User with UserName= {ReqDto.UserName} not found");
             if (!BCrypt.Net.BCrypt.Verify(ReqDto.PassWord, existing.PassWord))
                 throw new MismatchException($"Invalid Password");
+            existing.IsOpen = true;
+            await _repo.UpdateAsync(existing);
             var res = _mapper.Map<NewUserResDto>(existing);
             res.Token = GenerateJwtToken(existing);
             return res;
