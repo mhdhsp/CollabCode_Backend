@@ -40,6 +40,8 @@ namespace CollabCode.CollabCode.Application.Services
             file.CreatedAt = DateTime.Now;
             file.CreatedBy = userId;
             file.Content = "  // Start coding here ";
+            file.AssignedTo = userId;
+            file.AssignedAt = DateTime.Now;
 
             var res= await  _fileGRepo.AddAsync(file);
             return _mapper.Map<NewFileResDto>(res);
@@ -66,7 +68,8 @@ namespace CollabCode.CollabCode.Application.Services
 
             if (item == null)
                 throw new NotFoundException("Such a file not found");
-
+            if (item.AssignedTo != userId)
+                throw new UnauthorizedAccessException("This file not assigned to you");
             item.Content = dto.Content;
             item.FileName = dto.FileName;
             item.ModifiedAt = DateTime.Now;
@@ -77,15 +80,21 @@ namespace CollabCode.CollabCode.Application.Services
 
         public async Task<ProjectFile> Assign(FileAssignReqDto dto,int userId)
         {
-            var item = await _fileGRepo.GetByIdAsync(dto.FileId);
+            var item = await _fileGRepo.Query()
+                .Where(u=>u.Id==dto.FileId)
+                .Include(u=>u.Project)
+                    .ThenInclude(u=>u.Members)
+                .FirstOrDefaultAsync();
             if (item == null || item.IsDeleted)
                 throw new NotFoundException("Such a file not found");
           
             if(item.Project.OwnerId!= userId)
-                throw new UnauthorizedAccessException("Onlu owner can manage files");
-            if (item.AssignedTo != null)
+                throw new UnauthorizedAccessException("Only owner can manage files");
+            if (item.AssignedTo != userId )
                 throw new BadHttpRequestException("This file is alraedy assigned to somone");
 
+            if (!item.Project.Members.Any(u => u.UserId == dto.TargetUserId))
+                throw new NotFoundException("there is no such member  in this project");
             item.AssignedTo = dto.TargetUserId;
             item.AssignedAt = DateTime.UtcNow;
 
@@ -106,8 +115,8 @@ namespace CollabCode.CollabCode.Application.Services
 
             if (item.Project.OwnerId != userId)
                 throw new UnauthorizedAccessException("Onlu owner can manage files");
-            item.AssignedTo = null;
-            item.AssignedAt = null;
+            item.AssignedTo = userId;
+            item.AssignedAt = DateTime.Now;
 
             item.ModifiedAt = DateTime.UtcNow;
             item.ModifiedBy = userId;

@@ -64,7 +64,7 @@ namespace CollabCode.CollabCode.Application.Services
 
                 var startingFile = new ProjectFile
                 {
-                    FileName = "index",
+                    FileName = "index.html",
                     Content = "start coding here !",
                     AssignedTo = userId,
                     AssignedAt = DateTime.Now,
@@ -96,11 +96,11 @@ namespace CollabCode.CollabCode.Application.Services
             if (existing == null)
                 throw new NotFoundException("Project  not found");
             if (await _memberGRepo.AnyAsync(u => u.UserId == userId && u.ProjectId == existing.Id))
-                throw new AlreadyExistsException("You alraedy a member of this room");
+                throw new AlreadyExistsException("You alraedy a member of this project");
             if (!existing.IsPublic)
             {
                 if (!BCrypt.Net.BCrypt.Verify(reqDto.PassWord, existing.PassWordHash))
-                    throw new MismatchException("Invalid room password");
+                    throw new MismatchException("Invalid project password");
             }
             if (existing.OwnerId == userId)
                 throw new Exception("You are the owner of the project");

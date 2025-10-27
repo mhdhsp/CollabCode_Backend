@@ -83,6 +83,7 @@ namespace CollabCode.CollabCode.Application.Services
             await _repo.UpdateAsync(existing);
             var res = _mapper.Map<NewUserResDto>(existing);
             res.Token = GenerateJwtToken(existing);
+            res.Id = existing.Id;
             return res;
         }
     }

@@ -31,7 +31,7 @@ namespace CollabCode.CollabCode.WebApi.Controllers
             int userId = Convert.ToInt32(user);
 
             var res = await _service.CreateNewProject(ReqDto, userId);
-            return Ok(new ApiResponse<NewProjectResDto> { Message = "room created", Data = res });
+            return Ok(new ApiResponse<NewProjectResDto> { Message = "project created", Data = res });
         }
 
         [HttpPost("Join")]
@@ -56,8 +56,8 @@ namespace CollabCode.CollabCode.WebApi.Controllers
 
             var res = await _service.EnterProject(ProjectId, userId);
             if (res == null)
-                return NotFound(new ApiResponse<string> { Message = "Room not found" });
-            return Ok(new ApiResponse<ProjectResDto> { Message = "Room found ", Data = res });
+                return NotFound(new ApiResponse<string> { Message = "project not found" });
+            return Ok(new ApiResponse<ProjectResDto> { Message = "project found ", Data = res });
         }
 
         [HttpGet("Leave/{ProjectId}")]
@@ -70,7 +70,7 @@ namespace CollabCode.CollabCode.WebApi.Controllers
 
             var res = await _service.LeaveProject(userId, ProjectId);
             if (res == true)
-                return Ok(new ApiResponse<bool> { Message = "Left the room succesfully" });
+                return Ok(new ApiResponse<bool> { Message = "Left the project succesfully" });
             return BadRequest(new ApiResponse<bool> { Message = "Somthing went wrong" });
         }
 

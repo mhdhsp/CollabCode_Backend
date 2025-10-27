@@ -17,15 +17,15 @@ namespace CollabCode.CollabCode.API.Controllers
         }
 
 
-        [HttpGet("Rooms")]
-        public async Task<IActionResult> GetUserRooms()
+        [HttpGet("Projects")]
+        public async Task<IActionResult> GetUserProjects()
         {
             var user = HttpContext.Items["UserId"]?.ToString();
             if (user == null)
                 throw new NotFoundException("User id not found,login required");
             int userId = Convert.ToInt32(user);
 
-            var result = await _service.GetAllUserRooms(userId);
+            var result = await _service.GetAllUserProjects(userId);
             if (result == null)
                 return NotFound(new { message = "User not found" });
 

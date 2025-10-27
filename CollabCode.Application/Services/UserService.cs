@@ -21,7 +21,7 @@ namespace CollabCode.CollabCode.Application.Services
 
 
 
-        public async Task<UserProjectsDto?> GetAllUserRooms(int userId)
+        public async Task<UserProjectsDto?> GetAllUserProjects(int userId)
         {
             var res = await _userGRepo.Query()
                 .Where(u => u.Id == userId)
@@ -31,7 +31,7 @@ namespace CollabCode.CollabCode.Application.Services
                 .FirstOrDefaultAsync();
 
             if (res == null)
-                throw new NotFoundException("No rooms available");
+                throw new NotFoundException("No Projects available");
 
             var dto = new UserProjectsDto
             {
@@ -47,7 +47,7 @@ namespace CollabCode.CollabCode.Application.Services
                 JoinedRooms = res.MemberShips.Select(
                     u => new ProjectDto
                     {
-                        Id=u.Id,
+                        Id=u.ProjectId,
                         ProjectName=u.Project?.ProjectName
                     }
                     ).ToList()
