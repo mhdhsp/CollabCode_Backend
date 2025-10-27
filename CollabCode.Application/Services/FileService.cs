@@ -80,7 +80,9 @@ namespace CollabCode.CollabCode.Application.Services
             var item = await _fileGRepo.GetByIdAsync(dto.FileId);
             if (item == null || item.IsDeleted)
                 throw new NotFoundException("Such a file not found");
-
+          
+            if(item.Project.OwnerId!= userId)
+                throw new UnauthorizedAccessException("Onlu owner can manage files");
             if (item.AssignedTo != null)
                 throw new BadHttpRequestException("This file is alraedy assigned to somone");
 
@@ -95,10 +97,15 @@ namespace CollabCode.CollabCode.Application.Services
 
         public async Task<ProjectFile>  UnAssign(int FileId,int userId)
         {
-            var item =await  _fileGRepo.GetByIdAsync(FileId);
+            var item = await _fileGRepo.Query()
+                .Where(u => u.Id == FileId)
+                .Include(u => u.Project)
+                .FirstOrDefaultAsync();
             if (item == null || item.IsDeleted)
                 throw new NotFoundException("Such a file not found");
 
+            if (item.Project.OwnerId != userId)
+                throw new UnauthorizedAccessException("Onlu owner can manage files");
             item.AssignedTo = null;
             item.AssignedAt = null;
 

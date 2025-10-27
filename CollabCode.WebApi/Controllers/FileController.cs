@@ -2,6 +2,7 @@
 using CollabCode.CollabCode.Application.DTO.ResDto;
 using CollabCode.CollabCode.Application.Exceptions;
 using CollabCode.CollabCode.Application.Interfaces.Services;
+using CollabCode.CollabCode.Domain.Entities;
 using CollabCode.CollabCode.WebApi.Common;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
@@ -61,6 +62,35 @@ namespace CollabCode.CollabCode.WebApi.Controllers
             if (res == false)
                 return NotFound(new ApiResponse<Object> { Message = "Couldnt Update file" });
             return Ok(new ApiResponse<bool> { Message = "Succefully updated  file", Data = res });
+        }
+
+        [HttpPatch("Assign")]
+        public async Task<ActionResult> AssignToUser(FileAssignReqDto dto)
+        {
+            var user = HttpContext.Items["UserId"]?.ToString();
+            if (user == null)
+                throw new NotFoundException("User id not found,login required");
+            int userId = Convert.ToInt32(user);
+
+            var res = await _service.Assign(dto, userId);
+            if (res == null)
+                return BadRequest(new ApiResponse<string> { Message = "File cannot assigned" });
+            return Ok(new ApiResponse<ProjectFile> { Message = "File Assigned ", Data = res });
+        }
+
+        [HttpPatch("UnAssign/{id}")]
+        public async Task<ActionResult> UnAssign(int id)
+        {
+            var user = HttpContext.Items["UserId"]?.ToString();
+            if (user == null)
+                throw new NotFoundException("User id not found,login required");
+            int userId = Convert.ToInt32(user);
+
+
+            var res = await _service.UnAssign(id, userId);
+            if (res == null)
+                return BadRequest(new ApiResponse<string> { Message = "File cannot Unassigned" });
+            return Ok(new ApiResponse<ProjectFile> { Message = "File UnAssigned ", Data = res });
         }
     }
 }
