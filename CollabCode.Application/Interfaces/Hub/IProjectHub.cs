@@ -2,5 +2,6 @@
 {
     public interface IProjectHub
     {
+        Task UpdateProject(string json);
     }
 }

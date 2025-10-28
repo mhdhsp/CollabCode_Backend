@@ -52,7 +52,7 @@ namespace CollabCode.CollabCode.WebApi.Controllers
             int userId = Convert.ToInt32(user);
 
             var res = await _service.Logout(userId);
-            return Ok(new ApiResponse<NewUserResDto> { Message = "Loginned succesfully", Data = res });
+            return Ok(new ApiResponse<bool> { Message = "Loginned succesfully", Data = res });
         }
 
     }

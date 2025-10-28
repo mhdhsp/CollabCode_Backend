@@ -13,6 +13,7 @@ using CollabCode.CollabCode.Application.Interfaces.Repositories;
 using CollabCode.CollabCode.Infrastructure.Respositories;
 using CollabCode.CollabCode.Application.Interfaces.Services;
 using CollabCode.CollabCode.Application.Services;
+using CollabCode.CollabCode.WebApi.Hubs;
 //using CollabCode.CollabCode.Application.Services;
 //using CollabCode.CollabCode.Application.Services;
 
@@ -48,8 +49,8 @@ namespace CollabCode
             builder.Services.AddScoped<IFileService, FileService>();
 
             builder.Services.AddScoped(typeof(IGenericRepository<>),typeof(GenericRepository<>));
-        
 
+            builder.Services.AddSignalR();
 
 
             // logger for pgm.cs before build
@@ -151,7 +152,8 @@ namespace CollabCode
                     policy
                         .WithOrigins(frontendUrl) // allow only your frontend
                         .AllowAnyHeader()
-                        .AllowAnyMethod();
+                        .AllowAnyMethod()
+                        .AllowCredentials();
                 });
             });
 
@@ -219,6 +221,7 @@ namespace CollabCode
             
 
             app.MapControllers();
+            app.MapHub<ProjectHub>("/hubs/project");
 
             app.Run();
         }
