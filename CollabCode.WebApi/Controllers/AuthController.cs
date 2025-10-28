@@ -1,13 +1,14 @@
 ﻿using AutoMapper;
+using CollabCode.CollabCode.Application.DTO.ReqDto;
+using CollabCode.CollabCode.Application.DTO.ResDto;
+using CollabCode.CollabCode.Application.Exceptions;
+using CollabCode.CollabCode.Application.Interfaces.Services;
+using CollabCode.CollabCode.Application.Services;
+using CollabCode.CollabCode.Domain.Entities;
 using CollabCode.CollabCode.WebApi.Common;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using System.Net;
-using CollabCode.CollabCode.Application.DTO.ReqDto;
-using CollabCode.CollabCode.Application.DTO.ResDto;
-using CollabCode.CollabCode.Domain.Entities;
-using CollabCode.CollabCode.Application.Services;
-using CollabCode.CollabCode.Application.Interfaces.Services;
 
 namespace CollabCode.CollabCode.WebApi.Controllers
 {
@@ -41,6 +42,18 @@ namespace CollabCode.CollabCode.WebApi.Controllers
             return Ok(new ApiResponse<NewUserResDto> { Message = "Loginned succesfully", Data = res });
         }
 
+
+        [HttpPost("logout")]
+        public async Task<ActionResult> Logout()
+        {
+            var user = HttpContext.Items["UserId"]?.ToString();
+            if (user == null)
+                throw new NotFoundException("User id not found,login required");
+            int userId = Convert.ToInt32(user);
+
+            var res = await _service.Logout(userId);
+            return Ok(new ApiResponse<NewUserResDto> { Message = "Loginned succesfully", Data = res });
+        }
 
     }
 }

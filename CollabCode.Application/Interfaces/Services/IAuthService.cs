@@ -8,5 +8,6 @@ namespace CollabCode.CollabCode.Application.Interfaces.Services
     {
         Task<NewUserResDto?> Register(NewUserReqDto user);
         Task<NewUserResDto> Login(LoginReqDto ReqDto);
+        Task<bool> Logout(int userId);
     }
 }

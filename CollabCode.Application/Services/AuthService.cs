@@ -86,5 +86,15 @@ namespace CollabCode.CollabCode.Application.Services
             res.Id = existing.Id;
             return res;
         }
+
+        public async Task<bool> Logout(int userId)
+        {
+            var existing =await  _repo.GetByIdAsync(userId);
+            if (existing == null)
+                throw new NotFoundException("could logged out");
+            existing.IsOpen = false;
+            await _repo.UpdateAsync(existing);
+            return true;
+        }
     }
 }

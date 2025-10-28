@@ -137,16 +137,16 @@ namespace CollabCode.CollabCode.Application.Services
                 Members = project.Members.Select(u => new MemberDto
                 {
                     UserName = u.User?.UserName,
-                    id = u.Id
+                    id = u.User.Id
                 }).ToList(),
                 Files = project.Files.Select(
                     u => new FileDto
                     {
                         Id = u.Id,
-                        FileName=u.FileName,
-                        ProjectId=u.ProjectId,
-                        AssignedTo=u.AssignedTo,
-                        Content=u.Content
+                        FileName = u.FileName,
+                        ProjectId = u.ProjectId,
+                        AssignedTo = u.AssignedTo,
+                        Content = u.Content
                     }
                     ).ToList()
             };
