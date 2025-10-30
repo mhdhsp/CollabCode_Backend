@@ -1,4 +1,6 @@
-﻿namespace CollabCode.CollabCode.Domain.Entities
+﻿using CollabCode.CollabCode.Domain.Enums;
+
+namespace CollabCode.CollabCode.Domain.Entities
 {
     public class ProjectFile:BaseEntity
     {
@@ -11,5 +13,7 @@
 
         public int ProjectId { get; set; }
         public Project Project { get; set; } = null!;
+        public FileStatus Status { get; set; } = FileStatus.UnAssigned;
+
     }
 }

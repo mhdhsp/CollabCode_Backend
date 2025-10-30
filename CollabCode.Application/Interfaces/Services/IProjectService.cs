@@ -12,5 +12,6 @@ namespace CollabCode.CollabCode.Application.Interfaces.Services
         Task<ProjectResDto> EnterProject(int projectid, int userId);
         Task<bool?> LeaveProject(int userId, int projectid);
         Task<bool> DestroyProject(int userId, int projectid);
+        Task RemoveMember(int ownerId, int projectId, int memberId);
     }
 }

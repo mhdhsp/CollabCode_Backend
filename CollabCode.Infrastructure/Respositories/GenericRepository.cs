@@ -60,5 +60,10 @@ namespace CollabCode.CollabCode.Infrastructure.Respositories
            return  await _dbSet.FirstOrDefaultAsync(predicate);
         }
 
+        public async Task<List<T>> GetAllByCondition(Expression<Func<T, bool>> predicate)
+        {
+            return await _dbSet.Where(predicate).ToListAsync();
+        }
+
     }
 }

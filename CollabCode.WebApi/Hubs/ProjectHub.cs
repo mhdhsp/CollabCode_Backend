@@ -1,28 +1,30 @@
-﻿using CollabCode.CollabCode.Application.Interfaces.Hub;
-using Microsoft.AspNetCore.SignalR;
+﻿using Microsoft.AspNetCore.SignalR;
 
-namespace CollabCode.CollabCode.WebApi.Hubs
+public class ProjectHub : Hub
 {
-    public class ProjectHub:Hub
+    public async Task JoinGroup(string projectId)
     {
-        public override async Task  OnConnectedAsync()
-        {
-           
-            Console.WriteLine("connected");
-            await base.OnConnectedAsync();
-        }
-        public async Task UpdateProject(string projectId,string data)
-        {
-            await Groups.AddToGroupAsync(Context.ConnectionId, projectId);
-            await Clients.Groups(projectId).SendAsync("Recieve", data);
-            Console.WriteLine("from hub");
-        }
+        await Groups.AddToGroupAsync(Context.ConnectionId, projectId);
+        Console.WriteLine($"Hub: client {Context.ConnectionId} joined {projectId}");
+    }
 
-        public async Task JoinGroup(string projectId)
+    public async Task UpdateProject(string projectId)
+    {
+        try
         {
             await Groups.AddToGroupAsync(Context.ConnectionId, projectId);
+            await Clients.Group(projectId)
+                .SendAsync("Receive");
+            Console.WriteLine($"Hub: broadcast update for {projectId}");
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"❌ SignalR error: {ex.Message}");
         }
     }
- 
-    
+
+    public override async Task OnDisconnectedAsync(Exception? exception)
+    {
+        await base.OnDisconnectedAsync(exception);
+    }
 }

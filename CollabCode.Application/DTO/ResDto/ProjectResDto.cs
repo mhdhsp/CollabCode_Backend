@@ -1,4 +1,5 @@
 ﻿using CollabCode.CollabCode.Domain.Entities;
+using CollabCode.CollabCode.Domain.Enums;
 using System.Text.Json.Serialization;
 
 namespace CollabCode.CollabCode.Application.DTO.ResDto
@@ -8,6 +9,7 @@ namespace CollabCode.CollabCode.Application.DTO.ResDto
         public string? ProjectName { get; set; }
 
         public int OwnerId { get; set; }
+        public string? joinCode { get; set; }
 
         public List<MemberDto> Members { get; set; } = new List<MemberDto>();
         public List<FileDto> Files { get; set; } = new List<FileDto>();
@@ -27,6 +29,7 @@ namespace CollabCode.CollabCode.Application.DTO.ResDto
         public int? AssignedTo { get; set; } 
 
         public int ProjectId { get; set; }
+        public string? Status { get; set; }
     }
 
 }

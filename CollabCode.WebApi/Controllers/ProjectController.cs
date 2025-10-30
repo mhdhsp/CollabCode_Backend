@@ -91,6 +91,19 @@ namespace CollabCode.CollabCode.WebApi.Controllers
             return BadRequest(new ApiResponse<bool> { Message = "Something went wrong", Data = false });
         }
 
+        [HttpDelete("Member/{projectId}/{memberId}")]
+        public async Task<ActionResult> RemoveMember(int projectId, int memberId)
+        {
+            var user = HttpContext.Items["UserId"]?.ToString();
+            if (user == null)
+                throw new NotFoundException("User id not found, login required");
+
+            int userId = Convert.ToInt32(user);
+
+            await _service.RemoveMember(userId, projectId, memberId);
+            return Ok(new ApiResponse<bool> { Message = "Member removed successfully", Data = true });
+        }
+
 
     }
 }

@@ -134,6 +134,7 @@ namespace CollabCode.CollabCode.Application.Services
             {
                 ProjectName = project.ProjectName,
                 OwnerId = project.OwnerId,
+                joinCode=project.JoinCode,
                 Members = project.Members.Select(u => new MemberDto
                 {
                     UserName = u.User?.UserName,
@@ -146,7 +147,8 @@ namespace CollabCode.CollabCode.Application.Services
                         FileName = u.FileName,
                         ProjectId = u.ProjectId,
                         AssignedTo = u.AssignedTo,
-                        Content = u.Content
+                        Content = u.Content,
+                        Status=u.Status.ToString()
                     }
                     ).ToList()
             };
@@ -186,6 +188,23 @@ namespace CollabCode.CollabCode.Application.Services
             //return true;
              await _projectGRepo.DeleteAsync(project);
             return true;
+        }
+
+
+        public async Task RemoveMember(int ownerId, int projectId, int memberId)
+        {
+            var project = await _projectGRepo.GetByIdAsync(projectId);
+            if (project == null)
+                throw new NotFoundException("Project not found");
+
+            if (project.OwnerId != ownerId)
+                throw new UnauthorizedAccessException("Only the project owner can remove members");
+
+            var membership = await _memberGRepo.FirstOrDefaultAsync(m => m.UserId == memberId && m.ProjectId == projectId);
+            if (membership == null)
+                throw new NotFoundException("Member not found");
+
+            await _memberGRepo.DeleteAsync(membership);
         }
 
         private async Task<string> GenerateJoinCode()
