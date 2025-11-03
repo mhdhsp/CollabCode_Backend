@@ -50,10 +50,6 @@ namespace CollabCode.CollabCode.Application.Services
 
         public async Task<bool> DeleteFile(int FileId,int userId)
         {
-           
-           
-            
-
             var item =await  _fileGRepo.GetByIdAsync(FileId);
             
             if(item==null)

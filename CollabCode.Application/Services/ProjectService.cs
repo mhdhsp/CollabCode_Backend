@@ -93,10 +93,10 @@ namespace CollabCode.CollabCode.Application.Services
 
         public async Task<NewProjectResDto> JoinProject(ProjectJoinReqDto reqDto, int userId)
         {
-            var existing = await _projectGRepo.FirstOrDefaultAsync(u => u.JoinCode == reqDto.JoinCode);
+            var existing = await _projectGRepo.FirstOrDefaultAsync(u => u.JoinCode == reqDto.JoinCode && !u.IsDeleted);
             if (existing == null)
                 throw new NotFoundException("Project  not found");
-            if (await _memberGRepo.AnyAsync(u => u.UserId == userId && u.ProjectId == existing.Id))
+            if (await _memberGRepo.AnyAsync(u => u.UserId == userId && u.ProjectId == existing.Id && !u.IsDeleted))
                 throw new AlreadyExistsException("You alraedy a member of this project");
             if (!existing.IsPublic)
             {
@@ -195,7 +195,11 @@ namespace CollabCode.CollabCode.Application.Services
 
         public async Task<bool> DestroyProject(int userId, int projectid)
         {
-            var project = await _projectGRepo.GetByIdAsync(projectid);
+            var project = await _projectGRepo.Query()
+                .Where(u => u.Id == projectid && !u.IsDeleted)
+                .Include(u => u.Members)
+                .FirstOrDefaultAsync();
+
             if (project == null || project.IsDeleted)
                 throw new NotFoundException("project not found");
 
@@ -206,6 +210,14 @@ namespace CollabCode.CollabCode.Application.Services
             project.IsDeleted = true;
             project.DeletdBy = userId;
             project.DeletedAt = DateTime.Now;
+
+            foreach(var m in project.Members)
+            {
+                m.IsDeleted = true;
+                m.DeletdBy = userId;
+                m.DeletedAt = DateTime.Now;
+            }
+
             await _projectGRepo.UpdateAsync(project);
             return true;
         }
@@ -213,7 +225,11 @@ namespace CollabCode.CollabCode.Application.Services
 
         public async Task RemoveMember(int ownerId, int projectId, int memberId)
         {
-            var project = await _projectGRepo.GetByIdAsync(projectId);
+            Console.WriteLine("Remove member");
+            var project = await _projectGRepo.Query()
+                .Where(u => u.Id == projectId&& !u.IsDeleted)
+                .Include(u => u.Files)
+                .FirstOrDefaultAsync();
 
             if (project == null || project.IsDeleted)
                 throw new NotFoundException("Project not found");
@@ -221,8 +237,8 @@ namespace CollabCode.CollabCode.Application.Services
             if (project.OwnerId != ownerId)
                 throw new UnauthorizedAccessException("Only the project owner can remove members");
 
-            if (project.Files.Any(u => u.AssignedTo == memberId))
-                throw new UnauthorizedAccessException("Couldnt remove user , Some files are assigned to this member");
+            if (project.Files.Any(u => u.AssignedTo == memberId && u.Status==FileStatus.Progress))
+                throw new UnauthorizedAccessException("Couldnt remove user , Some files assigned to this member are in progress  ");
             var membership = await _memberGRepo.FirstOrDefaultAsync(m => m.UserId == memberId && m.ProjectId == projectId && !m.IsDeleted);
             if (membership == null)
                 throw new NotFoundException("Member not found");
@@ -241,7 +257,10 @@ namespace CollabCode.CollabCode.Application.Services
                 }
             }
 
-            await _memberGRepo.DeleteAsync(membership);
+            membership.DeletdBy = ownerId;
+            membership.DeletedAt = DateTime.Now;
+            membership.IsDeleted = true;
+            await _memberGRepo.UpdateAsync(membership);
         }
 
         private async Task<string> GenerateJoinCode()

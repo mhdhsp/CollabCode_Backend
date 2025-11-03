@@ -96,7 +96,7 @@ namespace CollabCode.CollabCode.WebApi.Controllers
         {
             var user = HttpContext.Items["UserId"]?.ToString();
             if (user == null)
-                throw new NotFoundException("User id not found, login required");
+                throw new UnauthorizedAccessException("User id not found, login required");
 
             int userId = Convert.ToInt32(user);
 
