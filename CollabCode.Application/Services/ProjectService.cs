@@ -10,6 +10,7 @@ using System.Security.Cryptography;
 using CollabCode.CollabCode.Application.Interfaces.Repositories;
 using CollabCode.CollabCode.Application.Interfaces.Services;
 using System.Runtime.InteropServices;
+using CollabCode.CollabCode.Domain.Enums;
 
 namespace CollabCode.CollabCode.Application.Services
 {
@@ -122,14 +123,17 @@ namespace CollabCode.CollabCode.Application.Services
             _logger.LogInformation($" from roomservice{projectId}+{userId}");
             var project = await _projectGRepo.Query()
                 .Where(u => u.Id == projectId && !u.IsDeleted)
-                .Include(u => u.Members)
+                .Include(u => u.Members.Where(u=> !u.IsDeleted))
                     .ThenInclude(u => u.User)
-                .Include(u => u.Files)
+                .Include(u => u.Files.Where(u=>!u.IsDeleted))
                 .FirstOrDefaultAsync();
 
             if (project == null)
                 throw new NotFoundException("Project  not found");
+            foreach (var file in project.Files)
+            {
 
+            }
             var projectDto = new ProjectResDto
             {
                 ProjectName = project.ProjectName,
@@ -158,17 +162,34 @@ namespace CollabCode.CollabCode.Application.Services
 
         public async Task<bool?> LeaveProject(int userId, int projectId)
         {
-            if (!await _projectGRepo.AnyAsync(u => u.Id == projectId))
+            if (!await _projectGRepo.AnyAsync(u => u.Id == projectId && !u.IsDeleted))
                 throw new NotFoundException(" Project not found");
-            else if (await _projectGRepo.AnyAsync(u => u.OwnerId == userId))
+            else if (await _projectGRepo.AnyAsync(u =>u.Id==projectId && u.OwnerId == userId && !u.IsDeleted))
                 throw new UnauthorizedAccessException("Owner canot leave the project");
-            else if (await _projectGRepo.AnyAsync(u => u.Id == projectId && u.IsDeleted == true))
-                throw new NotFoundException("Project not found");
 
-            var membership = await _memberGRepo.FirstOrDefaultAsync(u => u.UserId == userId && u.ProjectId == projectId);
+
+
+            var membership = await _memberGRepo.Query()
+                .Where(u => u.UserId == userId && u.ProjectId == projectId && !u.IsDeleted)
+                .Include(u => u.Project)
+                    .ThenInclude(u => u.Files)
+                .FirstOrDefaultAsync();
+
+
             if (membership == null)
                 throw new NotFoundException("You are not member of the project");
-            await _memberGRepo.DeleteAsync(membership);
+            if (membership.Project.Files.Any(u => u.AssignedTo == userId && u.Status == FileStatus.Progress))
+                throw new Exception("You can not leave the project until all files are saved ");
+            foreach(var file in membership.Project.Files.Where(u=>u.AssignedTo==userId))
+            {
+                file.Status = FileStatus.UnAssigned;
+            }
+
+            membership.DeletdBy = userId;
+            membership.DeletedAt = DateTime.Now;
+            membership.IsDeleted = true;
+
+            await _memberGRepo.UpdateAsync(membership);
             return true;
         }
 
@@ -182,11 +203,10 @@ namespace CollabCode.CollabCode.Application.Services
             if (project.OwnerId != userId)
                 throw new UnauthorizedAccessException("Only the project owner can delete this room");
 
-            //project.IsDeleted = true;
-            //project.DeletdBy = userId;
-            //project.DeletedAt = DateTime.Now;
-            //return true;
-             await _projectGRepo.DeleteAsync(project);
+            project.IsDeleted = true;
+            project.DeletdBy = userId;
+            project.DeletedAt = DateTime.Now;
+            await _projectGRepo.UpdateAsync(project);
             return true;
         }
 
@@ -194,15 +214,32 @@ namespace CollabCode.CollabCode.Application.Services
         public async Task RemoveMember(int ownerId, int projectId, int memberId)
         {
             var project = await _projectGRepo.GetByIdAsync(projectId);
-            if (project == null)
+
+            if (project == null || project.IsDeleted)
                 throw new NotFoundException("Project not found");
 
             if (project.OwnerId != ownerId)
                 throw new UnauthorizedAccessException("Only the project owner can remove members");
 
-            var membership = await _memberGRepo.FirstOrDefaultAsync(m => m.UserId == memberId && m.ProjectId == projectId);
+            if (project.Files.Any(u => u.AssignedTo == memberId))
+                throw new UnauthorizedAccessException("Couldnt remove user , Some files are assigned to this member");
+            var membership = await _memberGRepo.FirstOrDefaultAsync(m => m.UserId == memberId && m.ProjectId == projectId && !m.IsDeleted);
             if (membership == null)
                 throw new NotFoundException("Member not found");
+
+            foreach(var file in project.Files.Where(u=>u.AssignedTo==memberId))
+            {
+                if(file.Status==FileStatus.InActive|| file.Status==FileStatus.Saved )
+                {
+                    file.Status = FileStatus.UnAssigned;
+                    file.AssignedTo = ownerId;
+                    file.AssignedAt = null;
+
+                    file.ModifiedAt = DateTime.Now;
+                    file.ModifiedBy = ownerId;
+                   await  _fileGRepo.UpdateAsync(file);
+                }
+            }
 
             await _memberGRepo.DeleteAsync(membership);
         }

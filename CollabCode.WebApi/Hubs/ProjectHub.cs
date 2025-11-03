@@ -2,8 +2,14 @@
 
 public class ProjectHub : Hub
 {
+    private readonly ILogger<ProjectHub> _logger;
+   public ProjectHub(ILogger<ProjectHub> Logger)
+    {
+        _logger = Logger;
+    }
     public async Task JoinGroup(string projectId)
     {
+        _logger.LogInformation("from hub ,joined");
         await Groups.AddToGroupAsync(Context.ConnectionId, projectId);
         Console.WriteLine($"Hub: client {Context.ConnectionId} joined {projectId}");
     }
@@ -12,6 +18,7 @@ public class ProjectHub : Hub
     {
         try
         {
+            _logger.LogInformation("from hub+ invoked");
             await Groups.AddToGroupAsync(Context.ConnectionId, projectId);
             await Clients.Group(projectId)
                 .SendAsync("Receive");
@@ -19,6 +26,8 @@ public class ProjectHub : Hub
         }
         catch (Exception ex)
         {
+
+            _logger.LogCritical($"from hub{ex.Message}");
             Console.WriteLine($"❌ SignalR error: {ex.Message}");
         }
     }

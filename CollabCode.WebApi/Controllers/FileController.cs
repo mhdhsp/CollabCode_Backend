@@ -49,6 +49,20 @@ namespace CollabCode.CollabCode.WebApi.Controllers
             return Ok(new ApiResponse<bool> { Message = "Succefully deleted file", Data = res });
 
         }
+        [HttpPatch("Save")]
+        public async Task<ActionResult> SaveFile(SaveFileReqDto dto)
+        {
+            Console.WriteLine($"save file {dto}");
+            var user = HttpContext.Items["UserId"]?.ToString();
+            if (user == null)
+                throw new NotFoundException("User id not found,login required");
+            int userId = Convert.ToInt32(user);
+
+            var res = await _service.SaveFile(dto, userId);
+            if (res ==null)
+                return NotFound(new ApiResponse<Object> { Message = "Couldnt save  file" });
+            return Ok(new ApiResponse<ProjectFile> { Message = "Succefully saved   file", Data = res });
+        }
 
         [HttpPut("Update")]
         public async Task<ActionResult> UpdateFile(FileUpdateReqDto dto )

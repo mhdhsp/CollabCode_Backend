@@ -1,4 +1,5 @@
 ﻿using CollabCode.CollabCode.Domain.Entities;
+using CollabCode.CollabCode.Domain.Enums;
 
 namespace CollabCode.CollabCode.Application.DTO.ResDto
 {
@@ -12,5 +13,6 @@ namespace CollabCode.CollabCode.Application.DTO.ResDto
 
         public int ProjectId { get; set; }
 
+        public FileStatus Status { get; set; }
     }
 }

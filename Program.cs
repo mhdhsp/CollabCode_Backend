@@ -13,6 +13,10 @@ using CollabCode.CollabCode.Application.Interfaces.Repositories;
 using CollabCode.CollabCode.Infrastructure.Respositories;
 using CollabCode.CollabCode.Application.Interfaces.Services;
 using CollabCode.CollabCode.Application.Services;
+using Quartz;
+using System.Threading.Tasks;
+using Quartz.Impl;
+using CollabCode.CollabCode.WebApi.Jobs;
 //using CollabCode.CollabCode.Application.Services;
 //using CollabCode.CollabCode.Application.Services;
 
@@ -20,7 +24,7 @@ namespace CollabCode
 {
     public class Program
     {
-        public static void Main(string[] args)
+        public static async Task Main(string[] args)
         {
             var builder = WebApplication.CreateBuilder(args);
 
@@ -143,7 +147,7 @@ namespace CollabCode
 
             //Configuring CORS
             var frontendUrl = builder.Configuration.GetValue<string>("Frontend:Url");
-
+            var swaggerUrl = builder.Configuration.GetValue<string>("Swagger:Url");
             builder.Services.AddCors(options =>
             {
                 options.AddPolicy("FrontendPolicy", policy =>
@@ -158,6 +162,25 @@ namespace CollabCode
 
 
 
+            //IScheduler scheduler = await StdSchedulerFactory.GetDefaultScheduler();
+            //await scheduler.Start();
+            //IJobDetail job = JobBuilder.Create<FileChecking>()
+            //.WithIdentity("FileChecking", "group1")
+            //.Build();
+
+            //// Define the trigger (run every 10 seconds)
+            //ITrigger trigger = TriggerBuilder.Create()
+            //    .WithIdentity("myTrigger", "group1")
+            //    .StartNow()
+            //    .WithSimpleSchedule(x => x
+            //        .WithIntervalInSeconds(60)
+            //        .RepeatForever())
+            //    .Build();
+
+            //// Schedule the job
+            //await scheduler.ScheduleJob(job, trigger);
+
+            //Console.ReadKey(); // keep app running
 
 
 

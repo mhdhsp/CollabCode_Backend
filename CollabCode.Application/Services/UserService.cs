@@ -24,9 +24,9 @@ namespace CollabCode.CollabCode.Application.Services
         public async Task<UserProjectsDto?> GetAllUserProjects(int userId)
         {
             var res = await _userGRepo.Query()
-                .Where(u => u.Id == userId)
-                .Include(u => u.Projects)
-                .Include(u => u.MemberShips)
+                .Where(u => u.Id == userId )
+                .Include(u => u.Projects.Where(u=>!u.IsDeleted))
+                .Include(u => u.MemberShips.Where(u=>!u.IsDeleted))
                     .ThenInclude(u => u.Project)
                 .FirstOrDefaultAsync();
 
