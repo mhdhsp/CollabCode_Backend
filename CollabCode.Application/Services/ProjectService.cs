@@ -132,7 +132,11 @@ namespace CollabCode.CollabCode.Application.Services
                 throw new NotFoundException("Project  not found");
             foreach (var file in project.Files)
             {
-
+                if (file.AssignedAt == null)
+                    file.AssignedAt = DateTime.Now;
+                TimeSpan day = DateTime.Now - file.AssignedAt.Value;
+                if (day.TotalDays > 2)
+                    file.Status = FileStatus.InActive;
             }
             var projectDto = new ProjectResDto
             {

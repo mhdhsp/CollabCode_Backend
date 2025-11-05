@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using CollabCode.CollabCode.Infrastructure.Persistense;
+using System.Collections;
 using System.Linq.Expressions;
 
 namespace CollabCode.CollabCode.Application.Interfaces.Repositories
@@ -16,5 +17,6 @@ namespace CollabCode.CollabCode.Application.Interfaces.Repositories
         Task<bool> AnyAsync(Expression<Func<T, bool>> predicate);
 
         Task<T?> FirstOrDefaultAsync(Expression<Func<T, bool>> predicate);
+        public AppDbContext GetDbContext();
     }
 }

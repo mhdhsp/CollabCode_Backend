@@ -65,5 +65,6 @@ namespace CollabCode.CollabCode.Infrastructure.Respositories
             return await _dbSet.Where(predicate).ToListAsync();
         }
 
+        public  AppDbContext GetDbContext() => _context;
     }
 }

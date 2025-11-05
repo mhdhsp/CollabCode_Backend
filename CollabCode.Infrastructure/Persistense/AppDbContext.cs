@@ -12,6 +12,7 @@ namespace CollabCode.CollabCode.Infrastructure.Persistense
         public DbSet<Project>Projects { get; set; }
         public DbSet<ProjectFile> ProjectFiles { get; set; }
         public DbSet<MemberShip> MemberShips { get; set; }
+        public DbSet<Chat> Chats { get; set; }
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             modelBuilder.ApplyConfigurationsFromAssembly(Assembly.GetExecutingAssembly());

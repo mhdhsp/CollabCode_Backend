@@ -17,6 +17,8 @@ using Quartz;
 using System.Threading.Tasks;
 using Quartz.Impl;
 using CollabCode.CollabCode.WebApi.Jobs;
+using CollabCode.CollabCode.Application.Interfaces;
+using CollabCode.API.Hubs;
 //using CollabCode.CollabCode.Application.Services;
 //using CollabCode.CollabCode.Application.Services;
 
@@ -50,6 +52,7 @@ namespace CollabCode
             builder.Services.AddScoped<IProjectService, ProjectService>();
             builder.Services.AddScoped<IUserService, UserService>();
             builder.Services.AddScoped<IFileService, FileService>();
+            builder.Services.AddScoped<IChatService, ChatService>();
 
             builder.Services.AddScoped(typeof(IGenericRepository<>),typeof(GenericRepository<>));
 
@@ -244,6 +247,7 @@ namespace CollabCode
 
             app.MapControllers();
             app.MapHub<ProjectHub>("/hubs/project");
+            app.MapHub<ChatHub>("/hubs/chat");
 
             app.Run();
         }

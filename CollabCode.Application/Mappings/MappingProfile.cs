@@ -21,7 +21,9 @@ namespace CollabCode.CollabCode.Application.Mappings
             CreateMap<ProjectFile, NewFileResDto>().ReverseMap();
 
             CreateMap<ProjectFile, FileUpdateReqDto>().ReverseMap();
-            
+
+            CreateMap<Chat, ChatReqDto>().ReverseMap();
+            CreateMap<Chat, ChatResDto>().ReverseMap();
         }
     }
 }
