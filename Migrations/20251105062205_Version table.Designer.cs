@@ -4,6 +4,7 @@ using CollabCode.CollabCode.Infrastructure.Persistense;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace CollabCode.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20251105062205_Version table")]
+    partial class Versiontable
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -109,6 +112,9 @@ namespace CollabCode.Migrations
                     b.Property<int?>("ModifiedBy")
                         .HasColumnType("int");
 
+                    b.Property<int>("ProjectId")
+                        .HasColumnType("int");
+
                     b.Property<string>("SavedBy")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
@@ -116,6 +122,8 @@ namespace CollabCode.Migrations
                     b.HasKey("Id");
 
                     b.HasIndex("FileId");
+
+                    b.HasIndex("ProjectId");
 
                     b.ToTable("Versions");
                 });
@@ -335,7 +343,15 @@ namespace CollabCode.Migrations
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
+                    b.HasOne("CollabCode.CollabCode.Domain.Entities.Project", "Project")
+                        .WithMany()
+                        .HasForeignKey("ProjectId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
                     b.Navigation("File");
+
+                    b.Navigation("Project");
                 });
 
             modelBuilder.Entity("CollabCode.CollabCode.Domain.Entities.MemberShip", b =>

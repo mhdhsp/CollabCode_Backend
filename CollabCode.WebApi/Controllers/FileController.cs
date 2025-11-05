@@ -106,5 +106,21 @@ namespace CollabCode.CollabCode.WebApi.Controllers
                 return BadRequest(new ApiResponse<string> { Message = "File cannot Unassigned" });
             return Ok(new ApiResponse<ProjectFile> { Message = "File UnAssigned ", Data = res });
         }
+
+
+        [HttpGet("AllVersions")]
+        public async Task<ActionResult> GetAllVersions(int id)
+        {
+            var user = HttpContext.Items["UserId"]?.ToString();
+            if (user == null)
+                throw new NotFoundException("User id not found,login required");
+            int userId = Convert.ToInt32(user);
+
+
+            var res = await _service.GetAllVersions(id, userId);
+            if (res == null)
+                return BadRequest(new ApiResponse<string> { Message = "NoVersion Availabe " });
+            return Ok(new ApiResponse<List<FileVersion>> { Message = "File Versions found ", Data = res });
+        }
     }
 }

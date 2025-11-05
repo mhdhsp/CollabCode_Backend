@@ -16,16 +16,22 @@ namespace CollabCode.CollabCode.Application.Services
     {
         private readonly IGenericRepository<ProjectFile> _fileGRepo;
         private readonly IGenericRepository<Project> _projectGRepo;
+        private readonly IGenericRepository<FileVersion> _VersionGRepo;
+        IGenericRepository<User> _userRepo;
         private readonly IMapper _mapper;
         public FileService(
             IGenericRepository<ProjectFile> FileRepo,
             IGenericRepository<Project> ProRepo,
+            IGenericRepository<FileVersion> versionRepo,
+            IGenericRepository<User> userRepo,
             IMapper Mapper
             )
         {
             _fileGRepo = FileRepo;
             _projectGRepo = ProRepo;
             _mapper = Mapper;
+            _VersionGRepo = versionRepo;
+            _userRepo = userRepo;
         }
 
         public async Task<NewFileResDto> CreateFile(NewFileReqDto item,int userId)
@@ -70,19 +76,55 @@ namespace CollabCode.CollabCode.Application.Services
         }
         public async Task<ProjectFile> SaveFile(SaveFileReqDto dto, int userId)
         {
-            var item = await _fileGRepo.FirstOrDefaultAsync(u => u.Id == dto.FileId && u.ProjectId == dto.ProjectId && !u.IsDeleted);
+            var context = _fileGRepo.GetDbContext();
+
+            // Get the tracked entity
+            var item = await context.ProjectFiles
+                .FirstOrDefaultAsync(u => u.Id == dto.FileId && u.ProjectId == dto.ProjectId && !u.IsDeleted);
 
             if (item == null)
                 throw new NotFoundException("Such a file not found");
+
             if (item.AssignedTo != userId)
                 throw new UnauthorizedAccessException("This file not assigned to you");
+
             item.Content = dto.Content;
-            item.ModifiedAt = DateTime.Now;
+            item.ModifiedAt = DateTime.UtcNow;
             item.ModifiedBy = userId;
             item.Status = FileStatus.Saved;
-            await _fileGRepo.UpdateAsync(item);
+
+            var user = await context.Users.FirstOrDefaultAsync(u => u.Id == userId);
+            if (user == null)
+                throw new NotFoundException("User not found");
+
+            var version = new FileVersion
+            {
+                FileId = item.Id,
+                FileName = item.FileName,
+                Content = item.Content,
+                SavedBy = user.UserName,
+                CreatedAt = DateTime.UtcNow,
+                CreatedBy = userId
+            };
+
+            // Ensure transaction safety
+            using var transaction = await context.Database.BeginTransactionAsync();
+            try
+            {
+                await context.Versions.AddAsync(version);
+                context.ProjectFiles.Update(item);
+                await context.SaveChangesAsync();
+                await transaction.CommitAsync();
+            }
+            catch
+            {
+                await transaction.RollbackAsync();
+                throw;
+            }
+
             return item;
         }
+
 
 
         public async Task<bool> UpdateFile(FileUpdateReqDto dto ,int userId )
@@ -154,6 +196,13 @@ namespace CollabCode.CollabCode.Application.Services
             return item;
 
         }
+
+        public async Task<List<FileVersion>> GetAllVersions(int FileId, int userId)
+        {
+            var item = await _VersionGRepo.GetAllByCondition(u => u.FileId == FileId && !u.IsDeleted);
+            return item;                
+        }
+
 
 
     }

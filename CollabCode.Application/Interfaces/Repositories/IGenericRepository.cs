@@ -17,6 +17,7 @@ namespace CollabCode.CollabCode.Application.Interfaces.Repositories
         Task<bool> AnyAsync(Expression<Func<T, bool>> predicate);
 
         Task<T?> FirstOrDefaultAsync(Expression<Func<T, bool>> predicate);
+        Task<List<T>> GetAllByCondition(Expression<Func<T, bool>> predicate);
         public AppDbContext GetDbContext();
     }
 }

@@ -19,6 +19,8 @@ using Quartz.Impl;
 using CollabCode.CollabCode.WebApi.Jobs;
 using CollabCode.CollabCode.Application.Interfaces;
 using CollabCode.API.Hubs;
+using Microsoft.AspNetCore.SignalR;
+using CollabCode.CollabCode.WebApi.Hubs;
 //using CollabCode.CollabCode.Application.Services;
 //using CollabCode.CollabCode.Application.Services;
 
@@ -54,6 +56,7 @@ namespace CollabCode
             builder.Services.AddScoped<IFileService, FileService>();
             builder.Services.AddScoped<IChatService, ChatService>();
 
+            builder.Services.AddSingleton<IUserIdProvider, CustomUserIdProvider>();
             builder.Services.AddScoped(typeof(IGenericRepository<>),typeof(GenericRepository<>));
 
             builder.Services.AddSignalR();
@@ -248,6 +251,8 @@ namespace CollabCode
             app.MapControllers();
             app.MapHub<ProjectHub>("/hubs/project");
             app.MapHub<ChatHub>("/hubs/chat");
+            app.MapHub<NotificationHub>("/hubs/notification");
+
 
             app.Run();
         }

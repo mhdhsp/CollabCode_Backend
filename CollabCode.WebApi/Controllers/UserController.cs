@@ -1,12 +1,14 @@
 ﻿using CollabCode.CollabCode.Application.Exceptions;
 using CollabCode.CollabCode.Application.Interfaces.Services;
 using CollabCode.CollabCode.Application.Services;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace CollabCode.CollabCode.API.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
+    [Authorize]
     public class UserController : ControllerBase
     {
         private readonly IUserService _service;

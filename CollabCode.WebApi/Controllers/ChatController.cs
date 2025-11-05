@@ -4,13 +4,16 @@ using CollabCode.CollabCode.Application.Exceptions;
 using CollabCode.CollabCode.Application.Interfaces;
 using CollabCode.CollabCode.Domain.Entities;
 using CollabCode.CollabCode.WebApi.Common;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
 namespace CollabCode.CollabCode.WebApi.Controllers
 {
+  
     [Route("api/[controller]")]
     [ApiController]
+    [Authorize]
     public class ChatController : ControllerBase
     {
         private readonly IChatService _service;
