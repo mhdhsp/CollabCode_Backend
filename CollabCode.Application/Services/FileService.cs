@@ -12,7 +12,7 @@ using System.Xml;
 
 namespace CollabCode.CollabCode.Application.Services
 {
-    public class FileService:IFileService
+    public class FileService : IFileService
     {
         private readonly IGenericRepository<ProjectFile> _fileGRepo;
         private readonly IGenericRepository<Project> _projectGRepo;
@@ -34,7 +34,7 @@ namespace CollabCode.CollabCode.Application.Services
             _userRepo = userRepo;
         }
 
-        public async Task<NewFileResDto> CreateFile(NewFileReqDto item,int userId)
+        public async Task<NewFileResDto> CreateFile(NewFileReqDto item, int userId)
         {
             if (!await _projectGRepo.AnyAsync(u => u.Id == item.ProjectId))
                 throw new NotFoundException("Such a project not found");
@@ -50,18 +50,18 @@ namespace CollabCode.CollabCode.Application.Services
             file.AssignedTo = userId;
             file.AssignedAt = DateTime.Now;
 
-            var res= await  _fileGRepo.AddAsync(file);
+            var res = await _fileGRepo.AddAsync(file);
             return _mapper.Map<NewFileResDto>(res);
         }
 
-        public async Task<bool> DeleteFile(int FileId,int userId)
+        public async Task<bool> DeleteFile(int FileId, int userId)
         {
-            var item =await  _fileGRepo.GetByIdAsync(FileId);
-            
-            if(item==null)
+            var item = await _fileGRepo.GetByIdAsync(FileId);
+
+            if (item == null)
                 throw new NotFoundException("Such a file not found");
 
-            if (!await _fileGRepo.AnyAsync(u => u.ProjectId==item.ProjectId && u.Project.OwnerId == userId && !u.IsDeleted))
+            if (!await _fileGRepo.AnyAsync(u => u.ProjectId == item.ProjectId && u.Project.OwnerId == userId && !u.IsDeleted))
                 throw new UnauthorizedAccessException("only owner can delete  file");
 
             if (item.AssignedTo != userId)
@@ -127,7 +127,7 @@ namespace CollabCode.CollabCode.Application.Services
 
 
 
-        public async Task<bool> UpdateFile(FileUpdateReqDto dto ,int userId )
+        public async Task<bool> UpdateFile(FileUpdateReqDto dto, int userId)
         {
             var item = await _fileGRepo.FirstOrDefaultAsync(u => u.Id == dto.Id && u.ProjectId == dto.ProjectId && !u.IsDeleted);
 
@@ -145,26 +145,26 @@ namespace CollabCode.CollabCode.Application.Services
         }
 
 
-        public async Task<ProjectFile> Assign(FileAssignReqDto dto,int userId)
+        public async Task<ProjectFile> Assign(FileAssignReqDto dto, int userId)
         {
             var item = await _fileGRepo.Query()
-                .Where(u=>u.Id==dto.FileId)
-                .Include(u=>u.Project)
-                    .ThenInclude(u=>u.Members)
+                .Where(u => u.Id == dto.FileId)
+                .Include(u => u.Project)
+                    .ThenInclude(u => u.Members)
                 .FirstOrDefaultAsync();
             if (item == null || item.IsDeleted)
                 throw new NotFoundException("Such a file not found");
-          
-            if(item.Project.OwnerId!= userId)
+
+            if (item.Project.OwnerId != userId)
                 throw new UnauthorizedAccessException("Only owner can manage files");
-            if (item.AssignedTo != userId )
+            if (item.AssignedTo != userId)
                 throw new BadHttpRequestException("This file is alraedy assigned to somone");
 
             if (!item.Project.Members.Any(u => u.UserId == dto.TargetUserId))
                 throw new NotFoundException("there is no such member  in this project");
             item.AssignedTo = dto.TargetUserId;
             item.AssignedAt = DateTime.UtcNow;
-            item.Status = FileStatus.Progress;
+            item.Status = FileStatus.Assingned;
 
             item.ModifiedAt = DateTime.UtcNow;
             item.ModifiedBy = userId;
@@ -172,7 +172,7 @@ namespace CollabCode.CollabCode.Application.Services
             return item;
         }
 
-        public async Task<ProjectFile>  UnAssign(int FileId,int userId)
+        public async Task<ProjectFile> UnAssign(int FileId, int userId)
         {
             var item = await _fileGRepo.Query()
                 .Where(u => u.Id == FileId)
@@ -183,7 +183,7 @@ namespace CollabCode.CollabCode.Application.Services
 
             if (item.Project.OwnerId != userId)
                 throw new UnauthorizedAccessException("Onlu owner can manage files");
-            if (item.Status == FileStatus.Progress )
+            if (item.Status == FileStatus.Progress)
                 throw new Exception("This file is still in progress");
 
             item.AssignedTo = userId;
@@ -195,6 +195,20 @@ namespace CollabCode.CollabCode.Application.Services
             await _fileGRepo.UpdateAsync(item);
             return item;
 
+        }
+
+        public async Task<bool> StartEdit(int fileId, int userId)
+        {
+            var file = await _fileGRepo.GetByIdAsync(fileId);
+            if (file == null || file.IsDeleted)
+                throw new NotFoundException("File not found");
+            if (file.AssignedTo != userId)
+                throw new UnauthorizedAccessException("You can not edit the file");
+            file.Status = FileStatus.Progress;
+            file.ModifiedAt = DateTime.Now;
+            file.ModifiedBy = userId;
+             await _fileGRepo.UpdateAsync(file);
+            return true;
         }
 
         public async Task<List<FileVersion>> GetAllVersions(int FileId, int userId)

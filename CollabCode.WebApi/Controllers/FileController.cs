@@ -106,7 +106,20 @@ namespace CollabCode.CollabCode.WebApi.Controllers
                 return BadRequest(new ApiResponse<string> { Message = "File cannot Unassigned" });
             return Ok(new ApiResponse<ProjectFile> { Message = "File UnAssigned ", Data = res });
         }
+        [HttpPatch("StartEdit/{id}")]
+        public async Task<ActionResult> StartEdit(int id)
+        {
+            var user = HttpContext.Items["UserId"]?.ToString();
+            if (user == null)
+                throw new NotFoundException("User id not found,login required");
+            int userId = Convert.ToInt32(user);
 
+
+            var res = await _service.StartEdit(id, userId);
+            if (!res)
+                return BadRequest(new ApiResponse<string> { Message = "File cannot edit" });
+            return Ok(new ApiResponse<bool> { Message = "File UnAssigned ", Data = res });
+        }
 
         [HttpGet("AllVersions")]
         public async Task<ActionResult> GetAllVersions(int id)

@@ -20,6 +20,7 @@ namespace CollabCode.CollabCode.Application.Services
         private readonly IGenericRepository<Project> _projectGRepo;
         private readonly IGenericRepository<ProjectFile> _fileGRepo;
         private readonly IGenericRepository<MemberShip> _memberGRepo;
+        private readonly IGenericRepository<JoinMap> _mapRepo;
         private readonly AppDbContext _context;
         private readonly IMapper _mapper;
         private readonly ILogger<ProjectService> _logger;
@@ -28,6 +29,7 @@ namespace CollabCode.CollabCode.Application.Services
             IGenericRepository<Project> Repo,
             IGenericRepository<ProjectFile> FRepo,
             IGenericRepository<MemberShip> MRepo,
+            IGenericRepository<JoinMap> JRepo,
 
             ILogger<ProjectService> logger,
             AppDbContext context,
@@ -38,6 +40,7 @@ namespace CollabCode.CollabCode.Application.Services
             _projectGRepo = Repo;
             _fileGRepo = FRepo;
             _memberGRepo = MRepo;
+            _mapRepo = JRepo;
             _mapper = Mapper;
             _logger = logger;
             _context = context;
@@ -93,6 +96,8 @@ namespace CollabCode.CollabCode.Application.Services
 
         public async Task<NewProjectResDto> JoinProject(ProjectJoinReqDto reqDto, int userId)
         {
+            
+
             var existing = await _projectGRepo.FirstOrDefaultAsync(u => u.JoinCode == reqDto.JoinCode && !u.IsDeleted);
             if (existing == null)
                 throw new NotFoundException("Project  not found");
@@ -105,14 +110,32 @@ namespace CollabCode.CollabCode.Application.Services
             }
             if (existing.OwnerId == userId)
                 throw new Exception("You are the owner of the project");
-            var roomMember = new MemberShip
+            var member = new MemberShip
             {
                 UserId = userId,
                 ProjectId = existing.Id,
                 CreatedAt = DateTime.Now,
                 CreatedBy = userId
             };
-            await _memberGRepo.AddAsync(roomMember);
+
+            var map = new JoinMap
+            {
+                JoinCode = existing.JoinCode,
+                userId = userId
+            };
+            using var trans =await  _context.Database.BeginTransactionAsync();
+            try
+            {
+                await _memberGRepo.AddAsync(member);
+                await _mapRepo.AddAsync(map);
+                await trans.CommitAsync();
+            }
+            catch(Exception e)
+            {
+                _logger.LogError($"Failed to add to map with{e.Message}");
+               await  trans.RollbackAsync();
+            }
+            
             var res = _mapper.Map<NewProjectResDto>(existing);
             return res;
         }

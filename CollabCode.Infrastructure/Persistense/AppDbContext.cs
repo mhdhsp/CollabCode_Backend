@@ -14,6 +14,7 @@ namespace CollabCode.CollabCode.Infrastructure.Persistense
         public DbSet<MemberShip> MemberShips { get; set; }
         public DbSet<Chat> Chats { get; set; }
         public DbSet<FileVersion> Versions { get; set; }
+        public DbSet<JoinMap> JoinMap { get; set; }
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             modelBuilder.ApplyConfigurationsFromAssembly(Assembly.GetExecutingAssembly());

@@ -12,6 +12,7 @@ namespace CollabCode.CollabCode.Application.Interfaces.Services
         Task<bool> UpdateFile(FileUpdateReqDto dto, int userId);
         Task<ProjectFile> Assign(FileAssignReqDto dto, int userId);
         Task<ProjectFile> UnAssign(int FileId, int userId);
+        Task<bool> StartEdit(int fileId, int userId);
         Task<List<FileVersion>> GetAllVersions(int FileId, int userId);
 
     }

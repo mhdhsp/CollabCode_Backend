@@ -74,7 +74,7 @@ namespace CollabCode.CollabCode.Application.Services
 
             await _hubContext.Clients
                 .Group(item.ProjectId.ToString())
-                .SendAsync("Receive", broadcastMsg);
+                .SendAsync("ReceiveMsg", broadcastMsg);
 
             Console.WriteLine("Message broadcasted via SignalR");
             return item;

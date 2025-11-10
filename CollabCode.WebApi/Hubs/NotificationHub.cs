@@ -18,7 +18,7 @@ namespace CollabCode.API.Hubs
         public override async Task OnConnectedAsync()
         {
             var userId = Context.User?.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-            _logger.LogInformation("✅ User connected: ConnectionId={ConnectionId}, UserId={UserId}", Context.ConnectionId, userId ?? "Anonymous");
+            _logger.LogInformation("User connected: ConnectionId={ConnectionId}, UserId={UserId}", Context.ConnectionId, userId ?? "Anonymous");
 
             await base.OnConnectedAsync();
         }
@@ -27,9 +27,9 @@ namespace CollabCode.API.Hubs
         {
             var userId = Context.User?.FindFirst(ClaimTypes.NameIdentifier)?.Value;
             if (exception == null)
-                _logger.LogInformation("❌ User disconnected: ConnectionId={ConnectionId}, UserId={UserId}", Context.ConnectionId, userId ?? "Anonymous");
+                _logger.LogInformation("User disconnected: ConnectionId={ConnectionId}, UserId={UserId}", Context.ConnectionId, userId ?? "Anonymous");
             else
-                _logger.LogWarning(exception, "⚠️ User disconnected with error: ConnectionId={ConnectionId}, UserId={UserId}", Context.ConnectionId, userId ?? "Anonymous");
+                _logger.LogWarning(exception, " User disconnected with error: ConnectionId={ConnectionId}, UserId={UserId}", Context.ConnectionId, userId ?? "Anonymous");
 
             await base.OnDisconnectedAsync(exception);
         }
@@ -48,7 +48,7 @@ namespace CollabCode.API.Hubs
 
         public async Task SendNotificationToAll(string title, string message)
         {
-            _logger.LogInformation("🌍 Broadcasting notification: {Message}", message);
+            _logger.LogInformation(" Broadcasting notification: {Message}", message);
 
             await Clients.All.SendAsync("ReceiveNotification", new
             {
