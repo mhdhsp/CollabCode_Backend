@@ -128,6 +128,20 @@ namespace CollabCode
                     ValidAudience = jwtSettings["Audience"],
                     IssuerSigningKey = new SymmetricSecurityKey(key)
                 };
+
+                //options.Events = new JwtBearerEvents
+                //{
+                //    OnMessageReceived = Context =>
+                //    {
+                //        var token = Context.Request.Query["access_token"];
+                //        var path = Context.HttpContext.Request.Path;
+                //        if (!string.IsNullOrEmpty(token) && path.StartsWithSegments("/hubs/notification"))
+                //        {
+                //            Context.Token = token;
+                //        }
+                //        return Task.CompletedTask;
+                //    }
+                //};
             });
 
             builder.Services.AddAuthorization();
@@ -245,6 +259,7 @@ namespace CollabCode
             
             app.UseAuthorization();
             app.UseMiddleware<AuthMiddleware>();
+           
 
             
 

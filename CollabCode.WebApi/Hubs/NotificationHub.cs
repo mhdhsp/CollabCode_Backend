@@ -34,11 +34,11 @@ namespace CollabCode.API.Hubs
             await base.OnDisconnectedAsync(exception);
         }
 
-        public async Task SendNotificationToUser(string userId, string title, string message)
+        public async Task SendNotificationToUser(int  userId, string title, string message)
         {
             _logger.LogInformation(" Sending notification to user {UserId}: {Message}", userId, message);
 
-            await Clients.User(userId).SendAsync("ReceiveNotification", new
+            await Clients.User(Convert.ToString(userId)).SendAsync("ReceiveNotification", new
             {
                 Title = title,
                 Message = message,

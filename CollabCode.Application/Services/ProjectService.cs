@@ -233,7 +233,9 @@ namespace CollabCode.CollabCode.Application.Services
 
             if (project.OwnerId != userId)
                 throw new UnauthorizedAccessException("Only the project owner can delete this room");
-
+            var hasFiles = await _fileGRepo.AnyAsync(u => u.ProjectId == project.Id && u.Status == FileStatus.Progress && !u.IsDeleted);
+            if (hasFiles)
+                throw new Exception("Can not delete projects with files in progress ");
             project.IsDeleted = true;
             project.DeletdBy = userId;
             project.DeletedAt = DateTime.Now;

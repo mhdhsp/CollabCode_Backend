@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using CollabCode.API.Hubs;
 using CollabCode.CollabCode.Application.DTO.ReqDto;
 using CollabCode.CollabCode.Application.DTO.ResDto;
 using CollabCode.CollabCode.Application.Exceptions;
@@ -6,6 +7,7 @@ using CollabCode.CollabCode.Application.Interfaces.Repositories;
 using CollabCode.CollabCode.Application.Interfaces.Services;
 using CollabCode.CollabCode.Domain.Entities;
 using CollabCode.CollabCode.Domain.Enums;
+using Microsoft.AspNetCore.SignalR;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration.UserSecrets;
 using System.Xml;
@@ -17,21 +19,22 @@ namespace CollabCode.CollabCode.Application.Services
         private readonly IGenericRepository<ProjectFile> _fileGRepo;
         private readonly IGenericRepository<Project> _projectGRepo;
         private readonly IGenericRepository<FileVersion> _VersionGRepo;
-        IGenericRepository<User> _userRepo;
         private readonly IMapper _mapper;
+        private readonly IHubContext<NotificationHub>  _notify;
         public FileService(
             IGenericRepository<ProjectFile> FileRepo,
             IGenericRepository<Project> ProRepo,
             IGenericRepository<FileVersion> versionRepo,
             IGenericRepository<User> userRepo,
-            IMapper Mapper
+            IMapper Mapper,
+            IHubContext<NotificationHub> noyify
             )
         {
             _fileGRepo = FileRepo;
             _projectGRepo = ProRepo;
             _mapper = Mapper;
             _VersionGRepo = versionRepo;
-            _userRepo = userRepo;
+            _notify = noyify;
         }
 
         public async Task<NewFileResDto> CreateFile(NewFileReqDto item, int userId)
@@ -78,7 +81,6 @@ namespace CollabCode.CollabCode.Application.Services
         {
             var context = _fileGRepo.GetDbContext();
 
-            // Get the tracked entity
             var item = await context.ProjectFiles
                 .FirstOrDefaultAsync(u => u.Id == dto.FileId && u.ProjectId == dto.ProjectId && !u.IsDeleted);
 
@@ -169,6 +171,14 @@ namespace CollabCode.CollabCode.Application.Services
             item.ModifiedAt = DateTime.UtcNow;
             item.ModifiedBy = userId;
             await _fileGRepo.UpdateAsync(item);
+
+            await _notify.Clients.User(Convert.ToString(dto.TargetUserId)).SendAsync("ReceiveNotification", new
+            {
+                Title = "File Assigned ",
+                Message = $"You are assigned a file {item.FileName}",
+                Time = DateTime.UtcNow
+
+            });
             return item;
         }
 
@@ -214,7 +224,7 @@ namespace CollabCode.CollabCode.Application.Services
         public async Task<List<FileVersion>> GetAllVersions(int FileId, int userId)
         {
             var item = await _VersionGRepo.GetAllByCondition(u => u.FileId == FileId && !u.IsDeleted);
-            return item;                
+            return item.OrderBy(u => u.CreatedAt).ToList();              
         }
 
 
