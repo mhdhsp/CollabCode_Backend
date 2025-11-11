@@ -17,7 +17,6 @@ using Quartz;
 using System.Threading.Tasks;
 using Quartz.Impl;
 using CollabCode.CollabCode.WebApi.Jobs;
-using CollabCode.CollabCode.Application.Interfaces;
 using CollabCode.API.Hubs;
 using Microsoft.AspNetCore.SignalR;
 using CollabCode.CollabCode.WebApi.Hubs;
@@ -129,19 +128,19 @@ namespace CollabCode
                     IssuerSigningKey = new SymmetricSecurityKey(key)
                 };
 
-                //options.Events = new JwtBearerEvents
-                //{
-                //    OnMessageReceived = Context =>
-                //    {
-                //        var token = Context.Request.Query["access_token"];
-                //        var path = Context.HttpContext.Request.Path;
-                //        if (!string.IsNullOrEmpty(token) && path.StartsWithSegments("/hubs/notification"))
-                //        {
-                //            Context.Token = token;
-                //        }
-                //        return Task.CompletedTask;
-                //    }
-                //};
+                options.Events = new JwtBearerEvents
+                {
+                    OnMessageReceived = Context =>
+                    {
+                        var token = Context.Request.Query["access_token"];
+                        var path = Context.HttpContext.Request.Path;
+                        if (!string.IsNullOrEmpty(token) && path.StartsWithSegments("/hubs/notification"))
+                        {
+                            Context.Token = token;
+                        }
+                        return Task.CompletedTask;
+                    }
+                };
             });
 
             builder.Services.AddAuthorization();

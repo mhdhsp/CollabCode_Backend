@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.SignalR;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.SignalR;
 using Microsoft.Extensions.Logging;
 using System;
 using System.Security.Claims;
@@ -6,6 +7,7 @@ using System.Threading.Tasks;
 
 namespace CollabCode.API.Hubs
 {
+    [Authorize]
     public class NotificationHub : Hub
     {
         private readonly ILogger<NotificationHub> _logger;
@@ -23,6 +25,11 @@ namespace CollabCode.API.Hubs
             await base.OnConnectedAsync();
         }
 
+        public async Task JoinProjectGroup(string projectId)
+        {
+            await Groups.AddToGroupAsync(Context.ConnectionId, projectId);
+            _logger.LogInformation($"User {Context.UserIdentifier} Joined Group ={projectId}");
+        }
         public override async Task OnDisconnectedAsync(Exception? exception)
         {
             var userId = Context.User?.FindFirst(ClaimTypes.NameIdentifier)?.Value;

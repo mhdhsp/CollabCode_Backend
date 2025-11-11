@@ -2,12 +2,12 @@
 using CollabCode.CollabCode.Application.DTO.ReqDto;
 using CollabCode.CollabCode.Application.DTO.ResDto;
 using CollabCode.CollabCode.Application.Exceptions;
-using CollabCode.CollabCode.Application.Interfaces;
 using CollabCode.CollabCode.Application.Interfaces.Repositories;
 using CollabCode.CollabCode.Domain.Entities;
 using CollabCode.API.Hubs;
 using Microsoft.AspNetCore.SignalR;
 using Microsoft.EntityFrameworkCore;
+using CollabCode.CollabCode.Application.Interfaces.Services;
 
 namespace CollabCode.CollabCode.Application.Services
 {

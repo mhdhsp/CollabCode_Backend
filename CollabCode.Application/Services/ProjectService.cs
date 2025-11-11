@@ -159,7 +159,7 @@ namespace CollabCode.CollabCode.Application.Services
                     file.AssignedAt = DateTime.Now;
                 TimeSpan day = DateTime.Now - file.AssignedAt.Value;
                 if (day.TotalDays > 2)
-                    file.Status = FileStatus.InActive;
+                    file.Status = FileStatus.Expired;
             }
             var projectDto = new ProjectResDto
             {
@@ -274,7 +274,7 @@ namespace CollabCode.CollabCode.Application.Services
 
             foreach(var file in project.Files.Where(u=>u.AssignedTo==memberId))
             {
-                if(file.Status==FileStatus.InActive|| file.Status==FileStatus.Saved )
+                if(file.Status==FileStatus.Expired|| file.Status==FileStatus.Saved )
                 {
                     file.Status = FileStatus.UnAssigned;
                     file.AssignedTo = ownerId;

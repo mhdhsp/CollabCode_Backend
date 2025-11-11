@@ -1,7 +1,7 @@
 ﻿using CollabCode.CollabCode.Application.DTO.ReqDto;
 using CollabCode.CollabCode.Application.DTO.ResDto;
 using CollabCode.CollabCode.Application.Exceptions;
-using CollabCode.CollabCode.Application.Interfaces;
+using CollabCode.CollabCode.Application.Interfaces.Services;
 using CollabCode.CollabCode.Domain.Entities;
 using CollabCode.CollabCode.WebApi.Common;
 using Microsoft.AspNetCore.Authorization;

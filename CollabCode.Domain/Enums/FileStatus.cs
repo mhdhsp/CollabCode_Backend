@@ -3,9 +3,9 @@
     public enum FileStatus
     {
         UnAssigned,
-        Assingned,
+        Assigned,
         Progress,
         Saved,
-        InActive
+        Expired
     }
 }

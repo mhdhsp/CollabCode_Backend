@@ -53,7 +53,15 @@ namespace CollabCode.CollabCode.Application.Services
             file.AssignedTo = userId;
             file.AssignedAt = DateTime.Now;
 
+           
+          
             var res = await _fileGRepo.AddAsync(file);
+            await _notify.Clients.Group(Convert.ToString(item.ProjectId)).SendAsync("ReceiveNotification", new
+            {
+                Title = "File created",
+                Message = $"owner created a file called {item.FileName} ",
+                Time = DateTime.UtcNow
+            });
             return _mapper.Map<NewFileResDto>(res);
         }
 
@@ -166,7 +174,7 @@ namespace CollabCode.CollabCode.Application.Services
                 throw new NotFoundException("there is no such member  in this project");
             item.AssignedTo = dto.TargetUserId;
             item.AssignedAt = DateTime.UtcNow;
-            item.Status = FileStatus.Assingned;
+            item.Status = FileStatus.Assigned;
 
             item.ModifiedAt = DateTime.UtcNow;
             item.ModifiedBy = userId;
@@ -179,6 +187,7 @@ namespace CollabCode.CollabCode.Application.Services
                 Time = DateTime.UtcNow
 
             });
+            Console.WriteLine($"notification send to {dto.TargetUserId}");
             return item;
         }
 
