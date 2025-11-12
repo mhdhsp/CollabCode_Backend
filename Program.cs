@@ -206,6 +206,22 @@ namespace CollabCode
 
             var app = builder.Build();
 
+            using(var scope= app.Services.CreateAsyncScope())
+            {
+                var services = scope.ServiceProvider;
+                try
+                {
+                    var db = services.GetRequiredService<AppDbContext>();
+                    db.Database.Migrate();
+                }
+                catch(Exception ex)
+                {
+                     logger = services.GetRequiredService<ILogger<Program>>();
+                    logger.LogError(ex, "An error occurred while migrating or initializing the database.");
+                    throw;
+                }
+            }
+
             app.UseCors("FrontendPolicy");
 
             //logger after build 
