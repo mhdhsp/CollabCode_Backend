@@ -79,9 +79,9 @@ namespace CollabCode.CollabCode.Application.Services
                     FileName = "index.html",
                     Content = "start coding here !",
                     AssignedTo = userId,
-                    AssignedAt = DateTime.Now,
+                    AssignedAt = DateTime.UtcNow,
                     ProjectId = project.Id,
-                    CreatedAt = DateTime.Now,
+                    CreatedAt = DateTime.UtcNow,
                     CreatedBy = userId
                 };
 
@@ -122,7 +122,7 @@ namespace CollabCode.CollabCode.Application.Services
             {
                 UserId = userId,
                 ProjectId = existing.Id,
-                CreatedAt = DateTime.Now,
+                CreatedAt = DateTime.UtcNow,
                 CreatedBy = userId
             };
 
@@ -172,8 +172,8 @@ namespace CollabCode.CollabCode.Application.Services
             foreach (var file in project.Files)
             {
                 if (file.AssignedAt == null)
-                    file.AssignedAt = DateTime.Now;
-                TimeSpan day = DateTime.Now - file.AssignedAt.Value;
+                    file.AssignedAt = DateTime.UtcNow;
+                TimeSpan day = DateTime.UtcNow - file.AssignedAt.Value;
                 if (day.TotalDays > 2)
                     file.Status = FileStatus.Expired;
             }
@@ -234,7 +234,7 @@ namespace CollabCode.CollabCode.Application.Services
             }
 
             membership.DeletdBy = userId;
-            membership.DeletedAt = DateTime.Now;
+            membership.DeletedAt = DateTime.UtcNow;
             membership.IsDeleted = true;
 
             await _memberGRepo.UpdateAsync(membership);
@@ -265,13 +265,13 @@ namespace CollabCode.CollabCode.Application.Services
                 throw new Exception("Can not delete projects with files in progress ");
             project.IsDeleted = true;
             project.DeletdBy = userId;
-            project.DeletedAt = DateTime.Now;
+            project.DeletedAt = DateTime.UtcNow;
 
             foreach(var m in project.Members)
             {
                 m.IsDeleted = true;
                 m.DeletdBy = userId;
-                m.DeletedAt = DateTime.Now;
+                m.DeletedAt = DateTime.UtcNow;
             }
 
             await _projectGRepo.UpdateAsync(project);
@@ -307,14 +307,14 @@ namespace CollabCode.CollabCode.Application.Services
                     file.AssignedTo = ownerId;
                     file.AssignedAt = null;
 
-                    file.ModifiedAt = DateTime.Now;
+                    file.ModifiedAt = DateTime.UtcNow;
                     file.ModifiedBy = ownerId;
                    await  _fileGRepo.UpdateAsync(file);
                 }
             }
 
             membership.DeletdBy = ownerId;
-            membership.DeletedAt = DateTime.Now;
+            membership.DeletedAt = DateTime.UtcNow;
             membership.IsDeleted = true;
             await _memberGRepo.UpdateAsync(membership);
             await _notify.Clients.Group(Convert.ToString(projectId)).SendAsync("ReceiveNotification", new

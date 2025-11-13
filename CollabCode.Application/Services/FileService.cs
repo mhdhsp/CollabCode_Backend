@@ -47,11 +47,11 @@ namespace CollabCode.CollabCode.Application.Services
                 throw new UnauthorizedAccessException("only owner can create a file");
 
             var file = _mapper.Map<ProjectFile>(item);
-            file.CreatedAt = DateTime.Now;
+            file.CreatedAt = DateTime.UtcNow;
             file.CreatedBy = userId;
             file.Content = "  // Start coding here ";
             file.AssignedTo = userId;
-            file.AssignedAt = DateTime.Now;
+            file.AssignedAt = DateTime.UtcNow;
 
            
           
@@ -80,7 +80,7 @@ namespace CollabCode.CollabCode.Application.Services
 
             item.IsDeleted = true;
             item.DeletdBy = userId;
-            item.DeletedAt = DateTime.Now;
+            item.DeletedAt = DateTime.UtcNow;
 
             await _fileGRepo.UpdateAsync(item);
             await _notify.Clients.Group(Convert.ToString(item.ProjectId)).SendAsync("ReceiveNotification", new
@@ -157,7 +157,7 @@ namespace CollabCode.CollabCode.Application.Services
                 throw new UnauthorizedAccessException("This file not assigned to you");
             item.Content = dto.Content;
             item.FileName = dto.FileName;
-            item.ModifiedAt = DateTime.Now;
+            item.ModifiedAt = DateTime.UtcNow;
             item.ModifiedBy = userId;
             item.Status = FileStatus.Saved;
             await _fileGRepo.UpdateAsync(item);
@@ -216,7 +216,7 @@ namespace CollabCode.CollabCode.Application.Services
                 throw new Exception("This file is still in progress");
 
             item.AssignedTo = userId;
-            item.AssignedAt = DateTime.Now;
+            item.AssignedAt = DateTime.UtcNow;
             item.Status = FileStatus.UnAssigned;
 
             item.ModifiedAt = DateTime.UtcNow;
@@ -240,7 +240,7 @@ namespace CollabCode.CollabCode.Application.Services
             if (file.AssignedTo != userId)
                 throw new UnauthorizedAccessException("You can not edit the file");
             file.Status = FileStatus.Progress;
-            file.ModifiedAt = DateTime.Now;
+            file.ModifiedAt = DateTime.UtcNow;
             file.ModifiedBy = userId;
              await _fileGRepo.UpdateAsync(file);
             return true;
