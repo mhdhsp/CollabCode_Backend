@@ -136,7 +136,12 @@ namespace CollabCode.CollabCode.Application.Services
                 await transaction.RollbackAsync();
                 throw;
             }
-
+            await _notify.Clients.User(Convert.ToString(dto.ProjectId)).SendAsync("RecieveNotification", new
+            {
+                Title = "Saved a file",
+                Message = $"{item.FileName} is saved or updated  now",
+                Time = DateTime.UtcNow
+            });
             return item;
         }
 

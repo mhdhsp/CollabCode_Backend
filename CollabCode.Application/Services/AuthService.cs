@@ -1,7 +1,6 @@
 ﻿using AutoMapper;
 using CollabCode.CollabCode.Application.Exceptions;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Identity.Client;
 using Microsoft.IdentityModel.Tokens;
 using System.Data.Common;
 using System.IdentityModel.Tokens.Jwt;
@@ -63,7 +62,7 @@ namespace CollabCode.CollabCode.Application.Services
                 throw new AlreadyExistsException("Email Alredy Exist ");
 
             newUser.PassWord = BCrypt.Net.BCrypt.HashPassword(newUser.PassWord);
-            newUser.CreatedAt = DateTime.Now;
+            newUser.CreatedAt = DateTime.UtcNow;
             await _repo.AddAsync(newUser);
 
             var res = _mapper.Map<NewUserResDto>(newUser);

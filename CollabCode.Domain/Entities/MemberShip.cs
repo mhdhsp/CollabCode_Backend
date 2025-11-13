@@ -1,5 +1,4 @@
-﻿using Microsoft.Identity.Client;
-
+﻿
 namespace CollabCode.CollabCode.Domain.Entities
 {
     public class MemberShip:BaseEntity

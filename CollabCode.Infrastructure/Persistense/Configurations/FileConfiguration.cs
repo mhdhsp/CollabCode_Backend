@@ -13,7 +13,7 @@ namespace CollabCode.CollabCode.Infrastructure.Persistense.Configurations
             builder.HasOne(u => u.Project)
                 .WithMany(u => u.Files)
                 .HasForeignKey(u => u.ProjectId)
-                .OnDelete(DeleteBehavior.Cascade);
+                .OnDelete(DeleteBehavior.Restrict);
         }
     }
 }
