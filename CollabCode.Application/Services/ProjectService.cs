@@ -11,6 +11,8 @@ using CollabCode.CollabCode.Application.Interfaces.Repositories;
 using CollabCode.CollabCode.Application.Interfaces.Services;
 using System.Runtime.InteropServices;
 using CollabCode.CollabCode.Domain.Enums;
+using Microsoft.AspNetCore.SignalR;
+using CollabCode.API.Hubs;
 
 namespace CollabCode.CollabCode.Application.Services
 {
@@ -25,11 +27,15 @@ namespace CollabCode.CollabCode.Application.Services
         private readonly IMapper _mapper;
         private readonly ILogger<ProjectService> _logger;
 
+        private readonly IHubContext<NotificationHub> _notify;
+
         public ProjectService(
             IGenericRepository<Project> Repo,
             IGenericRepository<ProjectFile> FRepo,
             IGenericRepository<MemberShip> MRepo,
             IGenericRepository<JoinMap> JRepo,
+
+            IHubContext<NotificationHub> notify,
 
             ILogger<ProjectService> logger,
             AppDbContext context,
@@ -44,6 +50,8 @@ namespace CollabCode.CollabCode.Application.Services
             _mapper = Mapper;
             _logger = logger;
             _context = context;
+
+            _notify = notify;
 
         }
 
@@ -135,7 +143,15 @@ namespace CollabCode.CollabCode.Application.Services
                 _logger.LogError($"Failed to add to map with{e.Message}");
                await  trans.RollbackAsync();
             }
-            
+
+            await _notify.Clients.Group(Convert.ToString(existing.Id)).SendAsync("ReceiveNotification", new
+            {
+                Title = "New member",
+                Message = "A member joined the project",
+                Time = DateTime.UtcNow
+
+            });
+
             var res = _mapper.Map<NewProjectResDto>(existing);
             return res;
         }
@@ -189,11 +205,16 @@ namespace CollabCode.CollabCode.Application.Services
 
         public async Task<bool?> LeaveProject(int userId, int projectId)
         {
-            if (!await _projectGRepo.AnyAsync(u => u.Id == projectId && !u.IsDeleted))
-                throw new NotFoundException(" Project not found");
-            else if (await _projectGRepo.AnyAsync(u =>u.Id==projectId && u.OwnerId == userId && !u.IsDeleted))
-                throw new UnauthorizedAccessException("Owner canot leave the project");
+            //if (!await _projectGRepo.AnyAsync(u => u.Id == projectId && !u.IsDeleted))
+            //    throw new NotFoundException(" Project not found");
+            //else if (await _projectGRepo.AnyAsync(u =>u.Id==projectId && u.OwnerId == userId && !u.IsDeleted))
+            //    throw new UnauthorizedAccessException("Owner canot leave the project");
 
+            var project =await  _projectGRepo.FirstOrDefaultAsync(u => u.Id == projectId && !u.IsDeleted);
+            if(project==null)
+                throw new NotFoundException(" Project not found");
+            if(project.OwnerId==userId)
+                throw new UnauthorizedAccessException("Owner canot leave the project");
 
 
             var membership = await _memberGRepo.Query()
@@ -206,7 +227,7 @@ namespace CollabCode.CollabCode.Application.Services
             if (membership == null)
                 throw new NotFoundException("You are not member of the project");
             if (membership.Project.Files.Any(u => u.AssignedTo == userId && u.Status == FileStatus.Progress))
-                throw new Exception("You can not leave the project until all files are saved ");
+                throw new Exception("You can not leave the project while  your  files are in progress ");
             foreach(var file in membership.Project.Files.Where(u=>u.AssignedTo==userId))
             {
                 file.Status = FileStatus.UnAssigned;
@@ -217,6 +238,12 @@ namespace CollabCode.CollabCode.Application.Services
             membership.IsDeleted = true;
 
             await _memberGRepo.UpdateAsync(membership);
+            await _notify.Clients.User(Convert.ToString(project.OwnerId)).SendAsync("ReceiveNotification", new
+            {
+                Title = "Memeber Leaved",
+                Message = "A member leaved from your project",
+                Time = DateTime.UtcNow
+            });
             return true;
         }
 
@@ -290,6 +317,12 @@ namespace CollabCode.CollabCode.Application.Services
             membership.DeletedAt = DateTime.Now;
             membership.IsDeleted = true;
             await _memberGRepo.UpdateAsync(membership);
+            await _notify.Clients.Group(Convert.ToString(projectId)).SendAsync("ReceiveNotification", new
+            {
+                Title = "Removed Member",
+                Message = "Owner removed a member",
+                Time = DateTime.UtcNow
+            });
         }
 
         private async Task<string> GenerateJoinCode()

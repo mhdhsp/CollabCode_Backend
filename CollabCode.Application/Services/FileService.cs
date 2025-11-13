@@ -83,6 +83,12 @@ namespace CollabCode.CollabCode.Application.Services
             item.DeletedAt = DateTime.Now;
 
             await _fileGRepo.UpdateAsync(item);
+            await _notify.Clients.Group(Convert.ToString(item.ProjectId)).SendAsync("ReceiveNotification", new
+            {
+                Title = "File Deleted",
+                Message = $"owner deleted a file called {item.FileName} ",
+                Time = DateTime.UtcNow
+            });
             return true;
         }
         public async Task<ProjectFile> SaveFile(SaveFileReqDto dto, int userId)
@@ -97,7 +103,6 @@ namespace CollabCode.CollabCode.Application.Services
 
             if (item.AssignedTo != userId)
                 throw new UnauthorizedAccessException("This file not assigned to you");
-
             item.Content = dto.Content;
             item.ModifiedAt = DateTime.UtcNow;
             item.ModifiedBy = userId;
@@ -212,6 +217,12 @@ namespace CollabCode.CollabCode.Application.Services
             item.ModifiedAt = DateTime.UtcNow;
             item.ModifiedBy = userId;
             await _fileGRepo.UpdateAsync(item);
+            await _notify.Clients.User(Convert.ToString(userId)).SendAsync("RecieveNotification", new
+            {
+                Title = "File Unassigned",
+                Message = $"Owner  unassigned your  file {item.FileName}",
+                Time = DateTime.UtcNow
+            });
             return item;
 
         }
@@ -236,7 +247,7 @@ namespace CollabCode.CollabCode.Application.Services
             return item.OrderBy(u => u.CreatedAt).ToList();              
         }
 
-
+      
 
     }
 }
