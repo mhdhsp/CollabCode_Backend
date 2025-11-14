@@ -63,7 +63,7 @@ namespace CollabCode.CollabCode.Application.Services
 
             if (!project.IsPublic && !string.IsNullOrEmpty(reqDto.PassWordHash))
                 project.PassWordHash = BCrypt.Net.BCrypt.HashPassword(reqDto.PassWordHash);
-            project.CreatedAt = DateTime.Now;
+            project.CreatedAt = DateTime.UtcNow;
             project.CreatedBy = userId;
 
            

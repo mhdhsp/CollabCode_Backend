@@ -46,7 +46,8 @@ namespace CollabCode.CollabCode.Application.Services
 
             var msg = await query.ToListAsync();
             if (!msg.Any())
-                throw new NotFoundException("No messages found");
+                return new List<ChatResDto>();
+
 
             return msg;
         }
