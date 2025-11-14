@@ -222,7 +222,7 @@ namespace CollabCode.CollabCode.Application.Services
             item.ModifiedAt = DateTime.UtcNow;
             item.ModifiedBy = userId;
             await _fileGRepo.UpdateAsync(item);
-            await _notify.Clients.User(Convert.ToString(userId)).SendAsync("RecieveNotification", new
+            await _notify.Clients.User(Convert.ToString(userId)).SendAsync("ReceiveNotification", new
             {
                 Title = "File Unassigned",
                 Message = $"Owner  unassigned your  file {item.FileName}",
